@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
@@ -18,10 +18,20 @@ import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
 import { common, createLowlight } from "lowlight";
 import FontSizeExtension from "./FontSizeExtension";
-import { IconButton } from "@mui/material";
-import { BsTypeH1 } from "react-icons/bs";
-import { BsTypeH2 } from "react-icons/bs";
-import { BsTypeH3 } from "react-icons/bs";
+import {
+  FormControl,
+  IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  styled,
+} from "@mui/material";
+import { LuHeading } from "react-icons/lu";
+import { LuHeading1 } from "react-icons/lu";
+import { LuHeading2 } from "react-icons/lu";
+import { LuHeading3 } from "react-icons/lu";
+import { LuHeading4 } from "react-icons/lu";
+import { LuHeading5 } from "react-icons/lu";
 import { BsTypeBold } from "react-icons/bs";
 import { BsTypeItalic } from "react-icons/bs";
 import { BsTypeUnderline } from "react-icons/bs";
@@ -36,6 +46,33 @@ import { MdOutlineAddLink } from "react-icons/md";
 // Syntax highlighting setup
 const lowlight = createLowlight(common);
 
+const StyledToolbar = styled(IconButton)(() => ({
+  display: "flex",
+  alignItems: "end",
+  justifyContent: "center",
+  gap: "8px",
+}));
+
+const StyledSelect = styled(Select)(() => ({
+  "& .MuiSelect-select": {
+    padding: "0 !important",
+    fontSize: "1rem",
+  },
+
+  "& .MuiSelect-icon": {
+    display: "none",
+  },
+
+  "& .MuiIconButton-root": {
+    padding: 0,
+  },
+}));
+
+const ToolbarIconBtns = styled(IconButton)(() => ({
+  width: "35px",
+  height: "35px",
+}));
+// -------------------------------------------------------------------
 // Editor extensions
 const extensions = [
   StarterKit,
@@ -56,6 +93,8 @@ const extensions = [
   Underline,
   FontSizeExtension,
 ];
+
+type HeadingLevel = 1 | 2 | 3 | 4 | 5;
 
 const TextEditor = ({
   name,
@@ -83,29 +122,16 @@ const TextEditor = ({
 
   if (!editor) return null;
 
+  // ------------------------------------------------------
+
+  const [headingLevel, setHeadingLevel] = useState<HeadingLevel | "">(
+    editor.isActive("heading") ? editor.getAttributes("heading").level : ""
+  );
+
   const setFontSize = (size: string) => {
     editor.chain().focus().toggleMark("textStyle", { fontSize: size }).run();
   };
-
   const toolbarConfig = [
-    {
-      icon: <BsTypeH1 />, // Use an icon for headings
-      action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-      active: editor.isActive("heading", { level: 1 }),
-      label: "H1",
-    },
-    {
-      icon: <BsTypeH2 />, // Use an icon for headings
-      action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-      active: editor.isActive("heading", { level: 2 }),
-      label: "H2",
-    },
-    {
-      icon: <BsTypeH3 />, // Use an icon for headings
-      action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-      active: editor.isActive("heading", { level: 3 }),
-      label: "H3",
-    },
     {
       icon: <BsTypeBold />,
       action: () => editor.chain().focus().toggleBold().run(),
@@ -160,7 +186,7 @@ const TextEditor = ({
     {
       icon: <RiListOrdered2 />,
       action: () => editor.chain().focus().toggleOrderedList().run(),
-      label: "Orderd List",
+      label: "Ordered List",
     },
     {
       icon: <BiCodeBlock />,
@@ -169,17 +195,66 @@ const TextEditor = ({
     },
     {
       icon: <MdOutlineAddLink />,
-      action: () => editor.chain().focus().setLink({ href: "https://example.com" }).run(),
+      action: () =>
+        editor.chain().focus().setLink({ href: "https://example.com" }).run(),
       label: "Add Link",
     },
   ];
 
+  const headingOptions: {
+    label: string;
+    level: HeadingLevel;
+    icon: ReactElement<any, any>;
+  }[] = [
+    { label: "H1", level: 1, icon: <LuHeading1 /> },
+    { label: "H2", level: 2, icon: <LuHeading2 /> },
+    { label: "H3", level: 3, icon: <LuHeading3 /> },
+    { label: "H4", level: 4, icon: <LuHeading4 /> },
+    { label: "H5", level: 5, icon: <LuHeading5 /> },
+  ];
+
+  const handleHeadingChange = (event: SelectChangeEvent<unknown>) => {
+    const level =
+      event.target.value === ""
+        ? ""
+        : (Number(event.target.value) as HeadingLevel);
+    setHeadingLevel(level);
+
+    if (level !== "") {
+      editor.chain().focus().toggleHeading({ level }).run();
+    }
+  };
   return (
     <div>
       {/* Toolbar */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+      <StyledToolbar>
+        {/* Render Dropdown for Headings */}
+        <FormControl size="medium">
+          <StyledSelect
+            value={headingLevel}
+            onChange={handleHeadingChange}
+            displayEmpty
+            style={{ minWidth: "35px", minHeight: "35px" }}
+          >
+            <MenuItem value="">
+              <ToolbarIconBtns
+                key={"header"}
+                title={"Header"} // Add a tooltip for accessibility
+              >
+                <LuHeading />
+              </ToolbarIconBtns>
+            </MenuItem>
+            {headingOptions.map((option) => (
+              <MenuItem key={option.level} value={option.level}>
+                {option.icon}
+              </MenuItem>
+            ))}
+          </StyledSelect>
+        </FormControl>
+
+        {/* Render Other Buttons Dynamically */}
         {toolbarConfig.map((item, index) => (
-          <IconButton
+          <ToolbarIconBtns
             key={index}
             onClick={item.action}
             style={{
@@ -188,10 +263,9 @@ const TextEditor = ({
             title={item.label} // Add a tooltip for accessibility
           >
             {item.icon}
-          </IconButton>
+          </ToolbarIconBtns>
         ))}
-      </div>
-
+      </StyledToolbar>
       {/* TipTap Editor */}
       <EditorContent
         editor={editor}
