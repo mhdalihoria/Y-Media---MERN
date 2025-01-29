@@ -44,10 +44,11 @@ import { HiListBullet } from "react-icons/hi2";
 import { RiListOrdered2 } from "react-icons/ri";
 import { BiCodeBlock } from "react-icons/bi";
 import { MdOutlineAddLink } from "react-icons/md";
+import { BiFontFamily } from "react-icons/bi";
 import { RiFontSize } from "react-icons/ri";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { SketchPicker } from "react-color";
-// Syntax highlighting setup
+// --------------------------------------------------------------
 const lowlight = createLowlight(common);
 
 const StyledToolbar = styled(Box)(() => ({
@@ -136,8 +137,13 @@ const TextEditor = ({
 
   const [showPicker, setShowPicker] = useState(false);
 
-  const setFontSize = (size: string) => {
+  const [fontSize, setFontSize] = useState<string>("");
+
+  const handleFontSize = (event: SelectChangeEvent<unknown>) => {
+    const size = event.target.value as string;
+
     editor.chain().focus().toggleMark("textStyle", { fontSize: size }).run();
+    setFontSize(size);
   };
 
   const handleFontFamily = (event: SelectChangeEvent<unknown>) => {
@@ -177,17 +183,29 @@ const TextEditor = ({
       label: "Left Align",
     },
     {
-      icon: <LuAlignRight />,
+      icon: <LuAlignCenter />,
       action: () => editor.chain().focus().setTextAlign("center").run(),
       active: editor.isActive({ textAlign: "center" }),
       label: "Center Align",
     },
     {
-      icon: <LuAlignCenter />,
+      icon: <LuAlignRight />,
       action: () => editor.chain().focus().setTextAlign("right").run(),
       active: editor.isActive({ textAlign: "right" }),
       label: "Right Align",
     },
+
+    {
+      icon: <HiListBullet />,
+      action: () => editor.chain().focus().toggleBulletList().run(),
+      label: "Bullet List",
+    },
+    {
+      icon: <RiListOrdered2 />,
+      action: () => editor.chain().focus().toggleOrderedList().run(),
+      label: "Ordered List",
+    },
+
     {
       icon: <BsCardImage />,
       action: () =>
@@ -199,19 +217,30 @@ const TextEditor = ({
       label: "Insert Image",
     },
     {
-      icon: <HiListBullet />,
-      action: () => editor.chain().focus().toggleBulletList().run(),
-      label: "Bullet List",
-    },
-    {
-      icon: <RiListOrdered2 />,
-      action: () => editor.chain().focus().toggleOrderedList().run(),
-      label: "Ordered List",
-    },
-    {
       icon: <BiCodeBlock />,
       action: () => editor.chain().focus().toggleCodeBlock().run(),
       label: "Code Block",
+    },
+  ];
+
+  const bubbleMenuConfig = [
+    {
+      icon: <BsTypeBold />,
+      action: () => editor.chain().focus().toggleBold().run(),
+      active: editor.isActive("bold"),
+      label: "Bold",
+    },
+    {
+      icon: <BsTypeItalic />,
+      action: () => editor.chain().focus().toggleItalic().run(),
+      active: editor.isActive("italic"),
+      label: "Italic",
+    },
+    {
+      icon: <BsTypeUnderline />,
+      action: () => editor.chain().focus().toggleUnderline().run(),
+      active: editor.isActive("underline"),
+      label: "Underline",
     },
     {
       icon: <MdOutlineAddLink />,
@@ -240,6 +269,19 @@ const TextEditor = ({
     "Roboto",
     "Oswald",
     "Poppins",
+  ];
+
+  const sizeOptions = [
+    "12px",
+    "14px",
+    "16px",
+    "18px",
+    "24px",
+    "36px",
+    "42px",
+    "48px",
+    "52px",
+    "58px",
   ];
 
   const handleHeadingChange = (event: SelectChangeEvent<unknown>) => {
@@ -281,6 +323,26 @@ const TextEditor = ({
           </StyledSelect>
         </FormControl>
 
+        <FormControl size="medium">
+          <StyledSelect
+            value={fontFamily}
+            onChange={handleFontFamily}
+            displayEmpty
+            style={{ minWidth: "35px", minHeight: "35px" }}
+          >
+            <MenuItem value="">
+              <ToolbarIconBtns key={"font"} title={"Font Family"}>
+                <BiFontFamily />
+              </ToolbarIconBtns>
+            </MenuItem>
+            {fontOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </StyledSelect>
+        </FormControl>
+
         {/* Render Other Buttons Dynamically */}
         {toolbarConfig.map((item, index) => (
           <ToolbarIconBtns
@@ -294,35 +356,21 @@ const TextEditor = ({
             {item.icon}
           </ToolbarIconBtns>
         ))}
+      </StyledToolbar>
 
-        <FormControl size="medium">
-          <StyledSelect
-            value={fontFamily}
-            onChange={handleFontFamily}
-            displayEmpty
-            style={{ minWidth: "35px", minHeight: "35px" }}
-          >
-            <MenuItem value="">
-              <ToolbarIconBtns
-                key={"font"}
-                title={"Font Family"} // Add a tooltip for accessibility
-              >
-                <RiFontSize />
-              </ToolbarIconBtns>
-            </MenuItem>
-            {fontOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </StyledSelect>
-        </FormControl>
+      {/* TipTap Editor */}
+      <EditorContent
+        editor={editor}
+        style={{ background: "#1d2733" }}
+        name={name}
+      />
 
-        <ToolbarIconBtns
-          onClick={() => setShowPicker((prev) => !prev)}
-          sx={{ position: "relative", display: "inline-block" }}
-        >
-          <IoColorPaletteOutline />
+      {/* Bubble Menu */}
+      <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+        <Box sx={{ position: "relative", display: "inline-block" }}>
+          <ToolbarIconBtns onClick={() => setShowPicker((prev) => !prev)}>
+            <IoColorPaletteOutline />
+          </ToolbarIconBtns>
           {showPicker && (
             <div
               style={{
@@ -341,29 +389,39 @@ const TextEditor = ({
               />
             </div>
           )}
-        </ToolbarIconBtns>
-      </StyledToolbar>
-      {/* TipTap Editor */}
-      <EditorContent
-        editor={editor}
-        style={{ background: "#1d2733" }}
-        name={name}
-      />
+        </Box>
+        {bubbleMenuConfig.map((item, index) => (
+          <ToolbarIconBtns
+            key={index}
+            onClick={item.action}
+            style={{
+              color: item.active ? "blue" : "black", // Highlight active buttons
+            }}
+            title={item.label} // Add a tooltip for accessibility
+          >
+            {item.icon}
+          </ToolbarIconBtns>
+        ))}
 
-      {/* Bubble Menu */}
-      <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-        <button onClick={() => editor.chain().focus().toggleBold().run()}>
-          Bold
-        </button>
-        <button onClick={() => editor.chain().focus().toggleItalic().run()}>
-          Italic
-        </button>
-        <button onClick={() => editor.chain().focus().toggleUnderline().run()}>
-          Underline
-        </button>
-        <button onClick={() => setFontSize("14px")}>14px</button>
-        <button onClick={() => setFontSize("16px")}>16px</button>
-        <button onClick={() => setFontSize("24px")}>24px</button>
+        <FormControl size="medium">
+          <StyledSelect
+            value={fontSize}
+            onChange={handleFontSize}
+            displayEmpty
+            style={{ minWidth: "35px", minHeight: "35px" }}
+          >
+            <MenuItem value="">
+              <ToolbarIconBtns key={"font-size"} title={"Font Size"}>
+                <RiFontSize />
+              </ToolbarIconBtns>
+            </MenuItem>
+            {sizeOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </StyledSelect>
+        </FormControl>
       </BubbleMenu>
     </div>
   );
