@@ -43,6 +43,7 @@ import { HiListBullet } from "react-icons/hi2";
 import { RiListOrdered2 } from "react-icons/ri";
 import { BiCodeBlock } from "react-icons/bi";
 import { MdOutlineAddLink } from "react-icons/md";
+import { RiFontSize } from "react-icons/ri";
 // Syntax highlighting setup
 const lowlight = createLowlight(common);
 
@@ -128,9 +129,19 @@ const TextEditor = ({
     editor.isActive("heading") ? editor.getAttributes("heading").level : ""
   );
 
+  const [fontFamily, setFontFamily] = useState<string>("");
+
   const setFontSize = (size: string) => {
     editor.chain().focus().toggleMark("textStyle", { fontSize: size }).run();
   };
+
+  const handleFontFamily = (event: SelectChangeEvent<unknown>) => {
+    const family = event.target.value as string;
+
+    editor.chain().focus().setFontFamily(family).run();
+    setFontFamily(family);
+  };
+
   const toolbarConfig = [
     {
       icon: <BsTypeBold />,
@@ -213,6 +224,8 @@ const TextEditor = ({
     { label: "H5", level: 5, icon: <LuHeading5 /> },
   ];
 
+  const fontOptions = ["Inter", "Arial", "Serif", "Roboto", "Oswald", "Poppins"];
+
   const handleHeadingChange = (event: SelectChangeEvent<unknown>) => {
     const level =
       event.target.value === ""
@@ -265,6 +278,35 @@ const TextEditor = ({
             {item.icon}
           </ToolbarIconBtns>
         ))}
+
+        <FormControl size="medium">
+          <StyledSelect
+            value={fontFamily}
+            onChange={handleFontFamily}
+            displayEmpty
+            style={{ minWidth: "35px", minHeight: "35px" }}
+          >
+            <MenuItem value="">
+              <ToolbarIconBtns
+                key={"font"}
+                title={"Font Family"} // Add a tooltip for accessibility
+              >
+                <RiFontSize />
+              </ToolbarIconBtns>
+            </MenuItem>
+            {fontOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </StyledSelect>
+        </FormControl>
+
+        <button
+          onClick={() => editor.chain().focus().setColor("#FF5733").run()}
+        >
+          Orange
+        </button>
       </StyledToolbar>
       {/* TipTap Editor */}
       <EditorContent
