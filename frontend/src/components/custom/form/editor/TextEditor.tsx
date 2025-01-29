@@ -19,6 +19,7 @@ import Underline from "@tiptap/extension-underline";
 import { common, createLowlight } from "lowlight";
 import FontSizeExtension from "./FontSizeExtension";
 import {
+  Box,
   FormControl,
   IconButton,
   MenuItem,
@@ -44,10 +45,12 @@ import { RiListOrdered2 } from "react-icons/ri";
 import { BiCodeBlock } from "react-icons/bi";
 import { MdOutlineAddLink } from "react-icons/md";
 import { RiFontSize } from "react-icons/ri";
+import { IoColorPaletteOutline } from "react-icons/io5";
+import { SketchPicker } from "react-color";
 // Syntax highlighting setup
 const lowlight = createLowlight(common);
 
-const StyledToolbar = styled(IconButton)(() => ({
+const StyledToolbar = styled(Box)(() => ({
   display: "flex",
   alignItems: "end",
   justifyContent: "center",
@@ -131,6 +134,8 @@ const TextEditor = ({
 
   const [fontFamily, setFontFamily] = useState<string>("");
 
+  const [showPicker, setShowPicker] = useState(false);
+
   const setFontSize = (size: string) => {
     editor.chain().focus().toggleMark("textStyle", { fontSize: size }).run();
   };
@@ -140,6 +145,10 @@ const TextEditor = ({
 
     editor.chain().focus().setFontFamily(family).run();
     setFontFamily(family);
+  };
+
+  const handleColorChange = (color: any) => {
+    editor.chain().focus().setColor(color.hex).run();
   };
 
   const toolbarConfig = [
@@ -224,7 +233,14 @@ const TextEditor = ({
     { label: "H5", level: 5, icon: <LuHeading5 /> },
   ];
 
-  const fontOptions = ["Inter", "Arial", "Serif", "Roboto", "Oswald", "Poppins"];
+  const fontOptions = [
+    "Inter",
+    "Arial",
+    "Serif",
+    "Roboto",
+    "Oswald",
+    "Poppins",
+  ];
 
   const handleHeadingChange = (event: SelectChangeEvent<unknown>) => {
     const level =
@@ -302,11 +318,30 @@ const TextEditor = ({
           </StyledSelect>
         </FormControl>
 
-        <button
-          onClick={() => editor.chain().focus().setColor("#FF5733").run()}
+        <ToolbarIconBtns
+          onClick={() => setShowPicker((prev) => !prev)}
+          sx={{ position: "relative", display: "inline-block" }}
         >
-          Orange
-        </button>
+          <IoColorPaletteOutline />
+          {showPicker && (
+            <div
+              style={{
+                position: "absolute",
+                top: "40px", // Position below button
+                left: "0",
+                zIndex: 999,
+                backgroundColor: "#fff",
+                boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                borderRadius: "8px",
+              }}
+            >
+              <SketchPicker
+                color={"#fff"}
+                onChangeComplete={handleColorChange}
+              />
+            </div>
+          )}
+        </ToolbarIconBtns>
       </StyledToolbar>
       {/* TipTap Editor */}
       <EditorContent
