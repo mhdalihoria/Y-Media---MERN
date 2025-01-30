@@ -116,12 +116,11 @@ export default function Post() {
 
           <CButton
             onClick={uploadImage}
-            disabled={uploading}
+            disabled={editor.length < 10 || uploading}
             variant="contained"
             btnSize="xs"
             sx={{ marginLeft: "20px" }}
           >
-            {/* {uploading ? "Posting..." : "Post"} */}
             Post
           </CButton>
         </Box>
