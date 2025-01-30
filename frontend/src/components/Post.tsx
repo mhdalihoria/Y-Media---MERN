@@ -86,16 +86,18 @@ export default function Post() {
               src={preview}
               alt="Preview"
               style={{
-                width: "30px",
-                height: "30px",
+                width: "20px",
+                height: "20px",
                 objectFit: "cover",
                 border: "3px solid #fdfdfd",
                 borderRadius: "5px",
+                background: "rgba(128,128,128, .2)",
+                padding: ".5rem"
               }}
             />
           )}
         </Box>
-        <Box sx={{transform: "translateY(-13px)"}}>
+        <Box sx={{ transform: "translateY(-13px)" }}>
           <input
             type="file"
             accept="image/*"
