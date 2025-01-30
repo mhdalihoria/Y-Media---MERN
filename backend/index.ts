@@ -3,6 +3,8 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import cloudinary from "./routes/cloudinary.route";
+import user from "./routes/user.route";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,6 +25,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, TypeScript Express!");
 });
 
+app.use("/api/cloudinary", cloudinary)
+app.use("/user", user)
 
 // mongo connection
 function connect() {
