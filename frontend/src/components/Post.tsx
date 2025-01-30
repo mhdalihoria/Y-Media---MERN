@@ -34,9 +34,6 @@ export default function Post() {
       formData.append("timestamp", credentials.timestamp);
       formData.append("signature", credentials.signature);
 
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
       // 3. Upload to Cloudinary
       const res = await axios.post(
         `https://api.cloudinary.com/v1_1/${credentials.cloud_name}/image/upload`,
