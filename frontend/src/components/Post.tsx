@@ -19,28 +19,41 @@ export default function Post() {
     if (!image) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", image);
-    formData.append(
-      "upload_preset",
-      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-    );
 
     try {
+      // 1. Get signature from your backend
+      const { data: credentials } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/cloudinary/sign`
+      );
+
+      // 2. Prepare Cloudinary upload
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("upload_preset", credentials.upload_preset);
+      formData.append("api_key", credentials.api_key);
+      formData.append("timestamp", credentials.timestamp);
+      formData.append("signature", credentials.signature);
+
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      // 3. Upload to Cloudinary
       const res = await axios.post(
-        `https://api.cloudinary.com/v1_1/${
-          import.meta.env.VITE_CLOUDINARY_NAME
-        }/image/upload`,
+        `https://api.cloudinary.com/v1_1/${credentials.cloud_name}/image/upload`,
         formData
       );
 
-      const imageUrl = res.data.secure_url;
-      console.log("Upload success:", imageUrl);
-
-      // Send to your backend here
-      // await axios.post('/your-backend-endpoint', { imageUrl });
-    } catch (error: any) {
-      console.error("Upload failed:", error.response?.data || error.message);
+      // 4. Save to your database
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/post`,
+        {
+          content: editor,
+          img: res.data.secure_url,
+        }
+      );
+      console.log(response.status, response.data);
+    } catch (error) {
+      console.error("Upload failed:", error);
     } finally {
       setUploading(false);
     }
