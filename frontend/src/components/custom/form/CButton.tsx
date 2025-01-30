@@ -6,10 +6,18 @@ const StyledButton = styled(Button, {
   // here, we select which props don't get passed down tot he underlying dom
   // intercepted props === props that we use for styling purposes
   shouldForwardProp: (prop) => prop !== "color" && prop !== "btnSize", // Filter out only 'color' and 'btnSize'
-})<{ color?: "primary" | "secondary" | "accent"; btnSize?: "md" | "lg" }>( //We select exactly what props we allow, to loop through without problems
+})<{ color?: "primary" | "secondary" | "accent"; btnSize?: "xs"| "sm"|"md" | "lg" }>( //We select exactly what props we allow, to loop through without problems
   ({ theme, color, btnSize }) => {
     // size styles definitions
     const sizeStyles = {
+      xs: {
+        fontSize: "10px",
+        padding: "7px 18px",
+      },
+      sm: {
+        fontSize: "16px",
+        padding: "13px 35px",
+      },
       md: {
         fontSize: "24px",
         padding: "20px 46px",

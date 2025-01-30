@@ -1,4 +1,9 @@
-import { BoxProps, ButtonProps, SelectProps, TextFieldProps } from "@mui/material";
+import {
+  BoxProps,
+  ButtonProps,
+  SelectProps,
+  TextFieldProps,
+} from "@mui/material";
 import { ReactNode } from "react";
 
 //-------------------------------------------------------
@@ -11,7 +16,7 @@ export type BoxChildrenProps = BoxProps & {
 export type CustomButtonProps = ButtonProps & {
   // Extending ButtonProps to inherit MUI Button's props
   color?: "primary" | "secondary" | "accent";
-  btnSize?: "md" | "lg";
+  btnSize?: "xs" | "sm" | "md" | "lg";
   children: React.ReactNode; // Children prop for button content
 };
 
