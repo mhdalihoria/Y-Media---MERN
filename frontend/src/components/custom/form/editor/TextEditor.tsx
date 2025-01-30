@@ -51,6 +51,18 @@ import { SketchPicker } from "react-color";
 // --------------------------------------------------------------
 const lowlight = createLowlight(common);
 
+const StyledEditor = styled(EditorContent)((theme) => ({
+  background: "transparent",
+  padding: "1rem 2rem",
+  minHeight: "250px",
+  maxHeight: "fit-content",
+
+  "& >:focus": {
+    outline: "none",
+    borderColor: "transparent",
+  },
+}));
+
 const StyledToolbar = styled(Box)(() => ({
   display: "flex",
   alignItems: "end",
@@ -363,11 +375,7 @@ const TextEditor = ({
       </StyledToolbar>
 
       {/* TipTap Editor */}
-      <EditorContent
-        editor={editor}
-        style={{ background: "transparent", padding: "1rem 2rem" }}
-        name={name}
-      />
+      <StyledEditor editor={editor} name={name} />
 
       {/* Bubble Menu */}
       <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
