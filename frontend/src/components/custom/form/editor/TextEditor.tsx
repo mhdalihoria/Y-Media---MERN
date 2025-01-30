@@ -206,16 +206,16 @@ const TextEditor = ({
       label: "Ordered List",
     },
 
-    {
-      icon: <BsCardImage />,
-      action: () =>
-        editor
-          .chain()
-          .focus()
-          .insertContent('<img src="https://placehold.co/600x400" />')
-          .run(),
-      label: "Insert Image",
-    },
+    // {
+    //   icon: <BsCardImage />,
+    //   action: () =>
+    //     editor
+    //       .chain()
+    //       .focus()
+    //       .insertContent('<img src="https://placehold.co/600x400" />')
+    //       .run(),
+    //   label: "Insert Image",
+    // },
     {
       icon: <BiCodeBlock />,
       action: () => editor.chain().focus().toggleCodeBlock().run(),
@@ -361,7 +361,7 @@ const TextEditor = ({
       {/* TipTap Editor */}
       <EditorContent
         editor={editor}
-        style={{ background: "#1d2733" }}
+        style={{ background: "transparent", padding: "1rem 2rem" }}
         name={name}
       />
 
