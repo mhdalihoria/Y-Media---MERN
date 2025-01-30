@@ -12,7 +12,7 @@ const StyledButton = styled(Button, {
     const sizeStyles = {
       xs: {
         fontSize: "10px",
-        padding: "7px 18px",
+        padding: "6px 14px",
       },
       sm: {
         fontSize: "16px",
