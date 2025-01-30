@@ -298,7 +298,11 @@ const TextEditor = ({
   return (
     <div>
       {/* Toolbar */}
-      <StyledToolbar>
+      <StyledToolbar
+        sx={{
+          display: { xs: "none", sm: "flex" },
+        }}
+      >
         {/* Render Dropdown for Headings */}
         <FormControl size="medium">
           <StyledSelect
@@ -368,6 +372,45 @@ const TextEditor = ({
       {/* Bubble Menu */}
       <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
         <Box sx={{ position: "relative", display: "inline-block" }}>
+          <FormControl size="medium">
+            <StyledSelect
+              value={fontFamily}
+              onChange={handleFontFamily}
+              displayEmpty
+              style={{ minWidth: "35px", minHeight: "35px" }}
+            >
+              <MenuItem value="">
+                <ToolbarIconBtns key={"font"} title={"Font Family"}>
+                  <BiFontFamily />
+                </ToolbarIconBtns>
+              </MenuItem>
+              {fontOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </StyledSelect>
+          </FormControl>
+
+          <FormControl size="medium">
+            <StyledSelect
+              value={fontSize}
+              onChange={handleFontSize}
+              displayEmpty
+              style={{ minWidth: "35px", minHeight: "35px" }}
+            >
+              <MenuItem value="">
+                <ToolbarIconBtns key={"font-size"} title={"Font Size"}>
+                  <RiFontSize />
+                </ToolbarIconBtns>
+              </MenuItem>
+              {sizeOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </StyledSelect>
+          </FormControl>
           <ToolbarIconBtns onClick={() => setShowPicker((prev) => !prev)}>
             <IoColorPaletteOutline />
           </ToolbarIconBtns>
@@ -402,26 +445,6 @@ const TextEditor = ({
             {item.icon}
           </ToolbarIconBtns>
         ))}
-
-        <FormControl size="medium">
-          <StyledSelect
-            value={fontSize}
-            onChange={handleFontSize}
-            displayEmpty
-            style={{ minWidth: "35px", minHeight: "35px" }}
-          >
-            <MenuItem value="">
-              <ToolbarIconBtns key={"font-size"} title={"Font Size"}>
-                <RiFontSize />
-              </ToolbarIconBtns>
-            </MenuItem>
-            {sizeOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </StyledSelect>
-        </FormControl>
       </BubbleMenu>
     </div>
   );
