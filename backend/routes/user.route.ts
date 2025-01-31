@@ -17,16 +17,26 @@ user.post("/post", (req: Request, res: Response) => {
 
     const savedNewPost = newPost.save();
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Posted Successfully",
-        data: savedNewPost,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Posted Successfully",
+      data: savedNewPost,
+    });
   } catch (error) {
     console.log("error", error);
     res.status(500).json({ success: false, message: error });
+  }
+});
+
+user.get("/get-all-posts", async (req: Request, res: Response) => {
+  try {
+    const allPosts = await Post.find();
+
+    res.json(allPosts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Something went wrong", error });
   }
 });
 
