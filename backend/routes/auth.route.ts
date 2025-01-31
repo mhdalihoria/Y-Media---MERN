@@ -37,9 +37,13 @@ auth.post(
       await newUser.save();
 
       //   JsonWebToken
-      const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-      });
+      const token = jwt.sign(
+        { userId: newUser.id },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: "7d",
+        }
+      );
 
       res
         .status(201)
@@ -49,6 +53,39 @@ auth.post(
     }
   }
 );
-auth.post("/login", (req: Request, res: Response) => {});
+
+auth.post(
+  "/login",
+  [body("email").isEmail().normalizeEmail(), body("password").notEmpty()],
+  validateRequest,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { email, password } = req.body;
+
+      // Find user
+      const user = await User.findOne({ email });
+      if (!user) {
+        res.status(401).json({ error: "Invalid credentials" });
+        return; // 🔹 Early return
+      }
+
+      // Check password
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        res.status(401).json({ error: "Invalid credentials" });
+        return; // 🔹 Early return
+      }
+
+      // Generate JWT
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+        expiresIn: "7d",
+      });
+
+      res.status(200).json({ success: true, userId: user.id, token });
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  }
+);
 
 export default auth;
