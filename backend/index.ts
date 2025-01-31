@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cloudinary from "./routes/cloudinary.route";
 import user from "./routes/user.route";
+import auth from "./routes/auth.route";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/cloudinary", cloudinary)
 app.use("/user", user)
+app.use("/auth", auth)
 
 // mongo connection
 function connect() {
