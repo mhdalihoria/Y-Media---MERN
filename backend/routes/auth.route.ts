@@ -65,7 +65,7 @@ auth.post(
       // Find user
       const user = await User.findOne({ email });
       if (!user) {
-        res.status(401).json({ error: "Invalid credentials" });
+        res.status(401).json({ error: "User Not Found" });
         return; // 🔹 Early return
       }
 
