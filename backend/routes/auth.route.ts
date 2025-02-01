@@ -62,14 +62,16 @@ auth.post(
       // Find user
       const user = await User.findOne({ email });
       if (!user) {
-        res.status(401).json({ error: "User Not Found" });
+        res.status(401).json({ success: false, message: "User Not Found" });
         return; // 🔹 Early return
       }
 
       // Check password
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
-        res.status(401).json({ error: "Invalid credentials" });
+        res
+          .status(401)
+          .json({ success: false, message: "Invalid credentials" });
         return; // 🔹 Early return
       }
 
