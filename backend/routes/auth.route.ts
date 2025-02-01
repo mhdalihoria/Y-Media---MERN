@@ -29,6 +29,7 @@ auth.post(
         res
           .status(400)
           .json({ succces: false, message: "User Already Exists" });
+        return;
       }
 
       //   saving new user
@@ -37,13 +38,9 @@ auth.post(
       await newUser.save();
 
       //   JsonWebToken
-      const token = jwt.sign(
-        { userId: newUser.id },
-        process.env.JWT_SECRET!,
-        {
-          expiresIn: "7d",
-        }
-      );
+      const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET!, {
+        expiresIn: "7d",
+      });
 
       res
         .status(201)
