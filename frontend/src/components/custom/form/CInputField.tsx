@@ -1,21 +1,20 @@
-import { Palette, styled, TextField } from "@mui/material";
+import { Box, Palette, styled, TextField, TextFieldProps } from "@mui/material";
 import { CustomInputFieldTypes } from "../formTypes";
-
+import React from "react";
 
 const CustomInputField = styled(TextField, {
   shouldForwardProp: (prop) => prop !== "fieldColor",
 })<{ fieldColor: string }>(({ theme, fieldColor }) => {
-
   // Utility function to dynamically access the theme color using object path string
   const getColorFromTheme = (path: string) => {
     const keys = path.split("."); // Split the path like "primary.main" into ["primary", "main"]
-    let color: Palette | string = theme.palette; 
+    let color: Palette | string = theme.palette;
     keys.forEach((key) => {
       // Here's how we'll loop through the palette object
       // theme.palette["primary"]["main"]
-      color = color[key as keyof typeof color]; 
+      color = color[key as keyof typeof color];
     });
-    return color; 
+    return color;
   };
 
   const colorFromTheme = fieldColor
@@ -92,26 +91,89 @@ const CustomInputField = styled(TextField, {
     },
   };
 });
-export const CInputField = ({
-  name,
-  label,
-  type,
-  variant = "outlined",
-  fieldColor = "primary.main",
-  value = "", // Default to an empty string
-  onChange,
-  ...restProps
-}: CustomInputFieldTypes) => {
-  return (
-    <CustomInputField
-      name={name}
-      label={label}
-      type={type}
-      variant={variant}
-      fieldColor={fieldColor}
-      value={value}
-      onChange={onChange}
-      {...restProps}
-    />
-  );
-};
+
+const StyledLabel = styled("label", {
+  shouldForwardProp: (prop) => prop !== "fieldColor",
+})<{ fieldColor: string }>(({ theme, fieldColor }) => {
+  // Utility function to dynamically access the theme color using object path string
+  const getColorFromTheme = (path: string) => {
+    const keys = path.split("."); // Split the path like "primary.main" into ["primary", "main"]
+    let color: Palette | string = theme.palette;
+    keys.forEach((key) => {
+      // Here's how we'll loop through the palette object
+      // theme.palette["primary"]["main"]
+      color = color[key as keyof typeof color];
+    });
+    return color;
+  };
+
+  const colorFromTheme = fieldColor
+    ? getColorFromTheme(fieldColor)
+    : theme.palette.primary.main;
+
+  return {
+    color: colorFromTheme,
+    fontSize: ".8rem",
+    fontFamily: "Inter"
+  };
+});
+
+type CInputFieldProps = CustomInputFieldTypes & TextFieldProps;
+
+export const CInputField = React.forwardRef<HTMLInputElement, CInputFieldProps>(
+  (
+    {
+      name,
+      label,
+      type,
+      variant = "outlined",
+      fieldColor = "primary.main",
+      value,
+      onChange,
+      ...restProps
+    }: CustomInputFieldTypes,
+    ref
+  ) => {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: ".3em" }}>
+        <StyledLabel>{label}</StyledLabel>
+
+        <CustomInputField
+          name={name}
+          type={type}
+          variant={variant}
+          fieldColor={fieldColor}
+          value={value}
+          onChange={onChange}
+          {...restProps}
+          // MUI's TextField accepts "inputRef" to attach a ref to the underlying <input> element.
+          inputRef={ref}
+        />
+      </Box>
+    );
+  }
+);
+
+// export const CInputField = ({
+//   name,
+//   label,
+//   type,
+//   variant = "outlined",
+//   fieldColor = "primary.main",
+//   value = "", // Default to an empty string
+//   onChange,
+//   ...restProps
+// }: CustomInputFieldTypes) => {
+//   return (
+//     <CustomInputField
+//       name={name}
+//       label={label}
+//       type={type}
+//       variant={variant}
+//       fieldColor={fieldColor}
+//       value={value}
+//       onChange={onChange}
+//       {...restProps}
+//     />
+//   );
+// };
