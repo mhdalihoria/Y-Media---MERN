@@ -5,18 +5,26 @@ import HomeLayout from "./layouts/HomeLayout";
 import HomePage from "./pages/HomePage";
 import UserLayout from "./layouts/UserLayout";
 import UserPage from "./pages/UserPage";
+import AuthLayout from "./layouts/AuthLayout";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeLayout />}>
         <Route index element={<HomePage />} />
-      </Route> 
+      </Route>
+
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
 
       <Route path="/user" element={<UserLayout />}>
         <Route index element={<UserPage />} />
-      </Route> 
-{/* 
+      </Route>
+      {/* 
       <Route element={<AuthLayout />}> //layout component => routes with no "path" are for layouts
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
