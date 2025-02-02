@@ -1,10 +1,18 @@
 import { Request, Response, Router } from "express";
 import dotenv from "dotenv";
 import Post from "../models/Post";
+import authMiddleware from "../middleware/authMiddleware";
 
 dotenv.config();
 
 const user = Router();
+
+user.get("/profile", authMiddleware, (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(400).json({ success: false, message: "Unauthorized" });
+  }
+  res.json({ success: true, message: "Profile Logic Here | welcome bro" });
+});
 
 user.post("/post", (req: Request, res: Response) => {
   try {
