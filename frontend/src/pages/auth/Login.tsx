@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { useAuthStore } from "../../stores/authStore";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -13,7 +14,14 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+type ResponseData = {
+  success: boolean;
+  userId: string;
+  token: string;
+};
+
 export default function Login() {
+  const { setToken, setUser } = useAuthStore();
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -37,6 +45,12 @@ export default function Login() {
         }
       );
 
+      const responseData = (await response.data) as ResponseData;
+
+      if (responseData.success) {
+        setToken(responseData.token);
+        setUser(responseData.userId);
+      }
       console.log("Login successful:", response.data);
       // Redirect or show success message
     } catch (error) {

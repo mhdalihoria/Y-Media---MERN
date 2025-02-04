@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router";
 import HomeLayout from "./layouts/HomeLayout";
@@ -8,8 +8,18 @@ import UserPage from "./pages/UserPage";
 import AuthLayout from "./layouts/AuthLayout";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import { useAuthStore } from "./stores/authStore";
 
 function App() {
+  const { setToken } = useAuthStore();
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
+      setToken(token); 
+    }
+  }, [setToken]);
+
   return (
     <Routes>
       <Route path="/" element={<HomeLayout />}>
