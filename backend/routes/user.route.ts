@@ -9,7 +9,8 @@ const user = Router();
 
 user.get("/profile", authMiddleware, (req: Request, res: Response) => {
   if (!req.user) {
-    return res.status(400).json({ success: false, message: "Unauthorized" });
+    res.status(400).json({ success: false, message: "Unauthorized" });
+    return;
   }
   res.json({ success: true, message: "Profile Logic Here | welcome bro" });
 });
