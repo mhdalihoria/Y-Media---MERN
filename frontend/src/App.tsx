@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router";
 import HomeLayout from "./layouts/HomeLayout";
