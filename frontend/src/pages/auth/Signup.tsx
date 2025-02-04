@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Box } from "@mui/material";
+import { useAuthStore } from "../../stores/authStore";
+import { useNavigate } from "react-router";
 
 const signupSchema = z
   .object({
@@ -21,6 +23,12 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+type ResponseData = {
+  success: boolean;
+  userId: string;
+  token: string;
+};
+
 const errorMsg = {
   fontSize: "0.7rem",
   fontFamily: "Inter, Roboto",
@@ -29,7 +37,10 @@ const errorMsg = {
 };
 
 export default function Signup() {
+  const { setToken, setUser } = useAuthStore();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -53,8 +64,18 @@ export default function Signup() {
         }
       );
 
-      console.log("Signup successful:", response.data);
-      // Redirect or show success message
+      const responseData = (await response.data) as ResponseData;
+      if (!responseData.success) {
+        throw new Error("Something Went Wrong...");
+      }
+
+      setToken(responseData.token);
+
+      setUser(responseData.userId);
+
+      setServerSuccess("Signed up Successfully | Redirecting ...");
+
+      setTimeout(() => navigate("/"), 4000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setServerError(error.response?.data?.message || "Signup failed");
@@ -70,6 +91,7 @@ export default function Signup() {
     if (serverError) {
       setTimeout(() => {
         setServerError("");
+        setServerSuccess("");
       }, 4000);
     }
   }, [serverError]);
@@ -89,6 +111,18 @@ export default function Signup() {
           }}
         >
           {serverError}
+        </Box>
+      )}
+      {serverSuccess && (
+        <Box
+          sx={{
+            background: (theme) => theme.palette.success.dark,
+            margin: "1rem 0",
+            padding: ".5em",
+            borderRadius: "5px",
+          }}
+        >
+          {serverSuccess}
         </Box>
       )}
 

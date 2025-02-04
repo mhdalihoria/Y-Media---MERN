@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useAuthStore } from "../../stores/authStore";
 import { Box } from "@mui/material";
+import { useNavigate } from "react-router";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -30,7 +31,9 @@ const errorMsg = {
 
 export default function Login() {
   const { setToken, setUser } = useAuthStore();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -55,10 +58,17 @@ export default function Login() {
 
       const responseData = (await response.data) as ResponseData;
 
-      if (responseData.success) {
-        setToken(responseData.token);
-        setUser(responseData.userId);
+      if (!responseData.success) {
+        throw new Error("Something Went Wrong...");
       }
+
+      setToken(responseData.token);
+
+      setUser(responseData.userId);
+
+      setServerSuccess("Logged in Successfully | Redirecting ...");
+
+      setTimeout(() => navigate("/"), 4000);
       console.log("Login successful:", response.data);
       // Redirect or show success message
     } catch (error) {
@@ -76,6 +86,7 @@ export default function Login() {
     if (serverError) {
       setTimeout(() => {
         setServerError("");
+        setServerSuccess("");
       }, 4000);
     }
   }, [serverError]);
@@ -101,14 +112,24 @@ export default function Login() {
           {serverError}
         </Box>
       )}
-
+      {serverSuccess && (
+        <Box
+          sx={{
+            background: (theme) => theme.palette.success.dark,
+            margin: "1rem 0",
+            padding: ".5em",
+            borderRadius: "5px",
+          }}
+        >
+          {serverSuccess}
+        </Box>
+      )}
       <CInputField
         label="Email"
         {...register("email")}
         disabled={isSubmitting}
       />
       {errors.email && <span style={errorMsg}>{errors.email.message}</span>}
-
       <CInputField
         label="Password"
         type="password"
@@ -118,7 +139,6 @@ export default function Login() {
       {errors.password && (
         <span style={errorMsg}>{errors.password.message}</span>
       )}
-
       <CButton
         type="submit"
         btnSize="sm"
