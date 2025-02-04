@@ -2,10 +2,11 @@ import { useForm } from "react-hook-form";
 import { CInputField } from "../../components/custom/form/CInputField";
 import { CButton } from "../../components/custom/form/CButton";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useAuthStore } from "../../stores/authStore";
+import { Box } from "@mui/material";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -18,6 +19,13 @@ type ResponseData = {
   success: boolean;
   userId: string;
   token: string;
+};
+
+const errorMsg = {
+  fontSize: "0.7rem",
+  fontFamily: "Inter, Roboto",
+  marginTop: "-1em",
+  color: "#d32f2f",
 };
 
 export default function Login() {
@@ -64,30 +72,61 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    if (serverError) {
+      setTimeout(() => {
+        setServerError("");
+      }, 4000);
+    }
+  }, [serverError]);
+
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {serverError && <p>{serverError}</p>}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      {serverError && (
+        <Box
+          sx={{
+            background: (theme) => theme.palette.error.dark,
+            margin: "1rem 0",
+            padding: ".5em",
+            borderRadius: "5px",
+          }}
+        >
+          {serverError}
+        </Box>
+      )}
 
-        <CInputField
-          label="Email"
-          {...register("email")}
-          disabled={isSubmitting}
-        />
-        {errors.email && <span>{errors.email.message}</span>}
+      <CInputField
+        label="Email"
+        {...register("email")}
+        disabled={isSubmitting}
+      />
+      {errors.email && <span style={errorMsg}>{errors.email.message}</span>}
 
-        <CInputField
-          label="Password"
-          type="password"
-          {...register("password")}
-          disabled={isSubmitting}
-        />
-        {errors.password && <span>{errors.password.message}</span>}
+      <CInputField
+        label="Password"
+        type="password"
+        {...register("password")}
+        disabled={isSubmitting}
+      />
+      {errors.password && (
+        <span style={errorMsg}>{errors.password.message}</span>
+      )}
 
-        <CButton type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Logging In..." : "Login"}
-        </CButton>
-      </form>
-    </div>
+      <CButton
+        type="submit"
+        btnSize="sm"
+        disabled={isSubmitting}
+        sx={{ marginTop: "1.5rem" }}
+      >
+        {isSubmitting ? "Logging In..." : "Login"}
+      </CButton>
+    </form>
   );
 }
