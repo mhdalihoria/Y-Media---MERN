@@ -1,27 +1,57 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import User from "../models/User";
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(400).json({ success: false, message: "Not Authorized" });
-    return;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
   }
+}
 
-  const token = authHeader.split(" ")[1];
-
+const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    // 1. Get token from header
+    const token = req.headers.authorization?.split(" ")[1];
 
-    req.user = decoded;
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: "Not authorized, no token",
+      });
+      return;
+    }
 
+    // 2. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+
+    // 3. Get user from token
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    // 4. Attach user to request object
+    req.user = user;
     next();
-  } catch (err) {
-    res
-      .status(401)
-      .json({ success: false, message: "Unauthorized: Invalid token" });
-    return;
+  } catch (error) {
+    console.error("Authentication error:", error);
+    res.status(401).json({
+      success: false,
+      message: "Not authorized",
+    });
   }
 };
 
