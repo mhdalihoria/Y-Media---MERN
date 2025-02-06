@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Request, Response, Router } from "express";
 import dotenv from "dotenv";
 import Post from "../models/Post";
@@ -18,7 +19,7 @@ user.get("/:userId/profile", async (req: Request, res: Response) => {
       .exec();
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ success: false, message: "User not found" });
       return;
     }
 
@@ -42,7 +43,7 @@ user.get("/:userId/profile", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
@@ -58,28 +59,35 @@ user.post(
       const friend = (await User.findById(friendId)) as IUser;
 
       if (!user || !friend) {
-        res.status(404).json({ message: "User or friend not found" });
+        res
+          .status(404)
+          .json({ success: false, message: "User or friend not found" });
         return;
       }
 
+      const userObjectId = new Types.ObjectId(user._id as string);
+      const friendObjectId = new Types.ObjectId(friend._id as string);
+
       // Check if the friend is already added
-      if (user.friends.includes(friend._id)) {
-        res.status(400).json({ message: "Friend already added" });
+      if (user.friends.includes(friendObjectId)) {
+        res
+          .status(400)
+          .json({ success: false, message: "Friend already added" });
         return;
       }
 
       // Add the friend to the user's friends array
-      user.friends.push(friend._id);
+      user.friends.push(friendObjectId);
       await user.save();
 
       // Optionally, add the user to the friend's friends array (for mutual friendship)
-      friend.friends.push(user._id);
+      friend.friends.push(userObjectId);
       await friend.save();
 
-      res.json({ message: "Friend added successfully" });
+      res.json({ success: true, message: "Friend added successfully" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ success: false, message: "Server error" });
     }
   }
 );
