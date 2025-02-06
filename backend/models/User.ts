@@ -1,12 +1,13 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
-// Define User interface
-interface IUser extends Document {
+export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
   createdAt: Date;
+  friends: Types.ObjectId[]; // Array of user IDs (friends)
+  likedPosts: Types.ObjectId[]; // Array of post IDs (liked by the user)
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -33,6 +34,18 @@ const UserSchema = new Schema<IUser>({
     type: Date,
     default: Date.now,
   },
+  friends: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+    },
+  ],
+  likedPosts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Post", // Reference to the Post model
+    },
+  ],
 });
 
 // Hash password before saving

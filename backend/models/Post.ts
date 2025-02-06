@@ -1,18 +1,23 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 const PostSchema = new Schema({
   content: {
     type: String,
-    required: true
+    required: true,
   },
   img: {
     type: String,
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User", // Reference to the User model
+    required: true,
+  },
 });
 
-export default model('Post', PostSchema);
+export default model("Post", PostSchema);
