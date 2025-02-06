@@ -58,7 +58,6 @@ auth.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
-
       // Find user
       const user = await User.findOne({ email });
       if (!user) {
@@ -79,10 +78,10 @@ auth.post(
       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
         expiresIn: "7d",
       });
-
+      
       res.status(200).json({ success: true, userId: user.id, token });
     } catch (error) {
-      res.status(500).json({ error: "Login failed" });
+      res.status(500).json({ success: false, error: "Login failed" });
     }
   }
 );
