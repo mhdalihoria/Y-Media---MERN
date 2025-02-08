@@ -147,6 +147,24 @@ export default function Login() {
       >
         {isSubmitting ? "Logging In..." : "Login"}
       </CButton>
+      <div
+        style={{
+          fontSize: ".8rem",
+          marginTop: "-1em",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <span>No Account Yet?</span>
+        <CButton
+          variant="text"
+          btnSize="xs"
+          sx={{ padding: 0, width: "fit-content" }}
+          onClick={() => navigate("/signup")}
+        >
+          Sign Up
+        </CButton>
+      </div>
     </form>
   );
 }
