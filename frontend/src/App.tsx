@@ -9,10 +9,14 @@ import AuthLayout from "./layouts/AuthLayout";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import { useAuthStore } from "./stores/authStore";
+import useUserStore from "./stores/userStore";
 import ProfileOther from "./pages/auth/user-profile/ProfileOther";
+import axios from "axios";
 
 function App() {
-  const { setToken } = useAuthStore();
+  const { userId, token, setToken } = useAuthStore();
+  const { setUsername, setBio, setCoverImg, setProfileImg, setFriends } =
+    useUserStore();
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -20,6 +24,41 @@ function App() {
       setToken(token);
     }
   }, [setToken]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/profile/${userId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status !== 200) {
+          throw new Error();
+        }
+
+        const data = await response.data;
+        const { username, bio, coverImg, profileImg, friends } = data.user;
+
+        setUsername(username);
+        setBio(bio);
+        setCoverImg(coverImg);
+        setProfileImg(profileImg);
+        setFriends(friends);
+        
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (token) {
+      fetchUser();
+    }
+  }, [token]);
 
   return (
     <Routes>
