@@ -6,6 +6,9 @@ export interface IUser extends Document {
   email: string;
   password: string;
   createdAt: Date;
+  bio: string;
+  profileImg: string;
+  coverImg: string;
   friends: Types.ObjectId[]; // Array of user IDs (friends)
   likedPosts: Types.ObjectId[]; // Array of post IDs (liked by the user)
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -33,6 +36,18 @@ const UserSchema = new Schema<IUser>({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  bio: {
+    type: String,
+    required: false,
+  },
+  profileImg: {
+    type: String,
+    required: false,
+  },
+  coverImg: {
+    type: String,
+    required: false,
   },
   friends: [
     {
