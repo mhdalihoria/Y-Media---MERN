@@ -40,14 +40,17 @@ const UserSchema = new Schema<IUser>({
   bio: {
     type: String,
     required: false,
+    default: "", 
   },
   profileImg: {
     type: String,
     required: false,
+    default: null, 
   },
   coverImg: {
     type: String,
     required: false,
+    default: null, 
   },
   friends: [
     {
