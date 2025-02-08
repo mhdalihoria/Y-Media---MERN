@@ -9,50 +9,55 @@ dotenv.config();
 
 const user = Router();
 
-user.get("/profile/:userId/", async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.userId;
+user.get(
+  "/profile/:userId/",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
 
-    // Find the user by ID
-    const user = await User.findById(userId)
-      .populate<{ friends: IUser[] }>("friends", "username profileImg")
-      .exec();
+      // Find the user by ID
+      const user = await User.findById(userId)
+        .populate<{ friends: IUser[] }>("friends", "username profileImg")
+        .exec();
 
-    if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
-      return;
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      // Fetch posts created by the user
+      const userPosts = await Post.find({ user: userId })
+        .populate("user", "username")
+        .sort({ createdAt: -1 });
+
+      // Fetch posts liked by the user
+      const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
+        .populate("user", "username")
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        user: {
+          username: user.username,
+          bio: user.bio,
+          profileImg: user.profileImg,
+          coverImg: user.coverImg,
+          friends: user.friends.map((friend) => friend.username),
+          posts: userPosts,
+          likedPosts: likedPosts,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Server error" });
     }
-
-    // Fetch posts created by the user
-    const userPosts = await Post.find({ user: userId })
-      .populate("user", "username")
-      .sort({ createdAt: -1 });
-
-    // Fetch posts liked by the user
-    const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
-      .populate("user", "username")
-      .sort({ createdAt: -1 });
-
-    res.json({
-      success: true,
-      user: {
-        username: user.username,
-        bio: user.bio,
-        profileImg: user.profileImg,
-        coverImg: user.coverImg,
-        friends: user.friends.map((friend) => friend.username),
-        posts: userPosts,
-        likedPosts: likedPosts,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
   }
-});
+);
 
 user.post(
   "/:userId/add-friend/:friendId",
+  authMiddleware,
   async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
@@ -125,14 +130,12 @@ user.get(
   async (req: Request, res: Response) => {
     try {
       const allPosts = await Post.find().populate("user", "username");
-      const allPostsSimpleUsernames = allPosts.map((post) => (
-        {
-          content: post.content,
-          img: post.img,
-          createdAt: post.createdAt,
-          user: post.user.username,
-        }
-      ));
+      const allPostsSimpleUsernames = allPosts.map((post) => ({
+        content: post.content,
+        img: post.img,
+        createdAt: post.createdAt,
+        user: post.user.username,
+      }));
 
       res.json(allPostsSimpleUsernames);
     } catch (error) {
