@@ -7,6 +7,7 @@ type post = {
   content: string;
   img: string;
   createdAt: string;
+  user: string;
 };
 
 export default function HomePage() {
@@ -34,7 +35,7 @@ export default function HomePage() {
           return;
         }
 
-        console.log(data)
+        // console.log(data);
         setPosts(data);
         setLoading(false);
       } catch (err) {
