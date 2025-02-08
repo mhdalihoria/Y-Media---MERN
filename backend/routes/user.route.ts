@@ -9,13 +9,13 @@ dotenv.config();
 
 const user = Router();
 
-user.get("/:userId/profile", async (req: Request, res: Response) => {
+user.get("/profile/:userId/", async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
 
     // Find the user by ID
     const user = await User.findById(userId)
-      .populate<{ friends: IUser[] }>("friends", "username")
+      .populate<{ friends: IUser[] }>("friends", "username profileImg")
       .exec();
 
     if (!user) {
@@ -34,12 +34,16 @@ user.get("/:userId/profile", async (req: Request, res: Response) => {
       .sort({ createdAt: -1 });
 
     res.json({
+      success: true,
       user: {
         username: user.username,
+        bio: user.bio,
+        profileImg: user.profileImg,
+        coverImg: user.coverImg,
         friends: user.friends.map((friend) => friend.username),
+        posts: userPosts,
+        likedPosts: likedPosts,
       },
-      posts: userPosts,
-      likedPosts: likedPosts,
     });
   } catch (error) {
     console.error(error);
@@ -92,13 +96,14 @@ user.post(
   }
 );
 
-user.post("/post", (req: Request, res: Response) => {
+user.post("/post", authMiddleware, (req: Request, res: Response) => {
   try {
-    const { content, img } = req.body;
+    const { content, img, user } = req.body;
 
     const newPost = new Post({
       content,
       img,
+      user,
     });
 
     const savedNewPost = newPost.save();
@@ -114,16 +119,28 @@ user.post("/post", (req: Request, res: Response) => {
   }
 });
 
-user.get("/get-all-posts", async (req: Request, res: Response) => {
-  try {
-    const allPosts = await Post.find();
+user.get(
+  "/get-all-posts",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const allPosts = await Post.find().populate("user", "username");
+      const allPostsSimpleUsernames = allPosts.map((post) => (
+        {
+          content: post.content,
+          img: post.img,
+          createdAt: post.createdAt,
+          user: post.user.username,
+        }
+      ));
 
-    res.json(allPosts);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Something went wrong", error });
+      res.json(allPostsSimpleUsernames);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Something went wrong", error });
+    }
   }
-});
+);
 
 export default user;
