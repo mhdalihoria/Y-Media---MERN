@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { Request, Response, Router } from "express";
 import dotenv from "dotenv";
-import Post from "../models/Post";
+import Post, { IPost } from "../models/Post";
 import authMiddleware from "../middleware/authMiddleware";
 import User, { IUser } from "../models/User";
 
@@ -51,6 +51,100 @@ user.get(
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
+);
+
+user.get(
+  "/get-all-posts",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const allPosts = await Post.find().populate("user", "username");
+      const allPostsSimpleUsernames = allPosts.map((post) => ({
+        content: post.content,
+        img: post.img,
+        createdAt: post.createdAt,
+        user: post.user.username,
+      }));
+
+      res.json(allPostsSimpleUsernames);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Something went wrong", error });
+    }
+  }
+);
+
+// GET /users/:userId/posts
+user.get(
+  "/:userId/posts",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const posts = await Post.find({ user: userId })
+        .populate("user", "username")
+        .sort({ createdAt: -1 });
+      res.json(posts);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error fetching posts" });
+    }
+  }
+);
+
+// GET /users/:userId/liked-posts
+user.get(
+  "/:userId/liked-posts",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const user = await User.findById(userId)
+        .populate<{ likedPosts: IPost[] }>("likedPosts", "content img user") // Explicitly cast likedPosts as Post[]
+        .exec();
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+      const likedPosts = user.likedPosts.map((post) => ({
+        _id: post._id,
+        content: post.content,
+        img: post.img,
+        user: post.user.username,
+      }));
+      res.json(likedPosts);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error fetching liked posts" });
+    }
+  }
+);
+
+// GET /users/:userId/friends
+user.get(
+  "/:userId/friends",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const user = await User.findById(userId)
+        .populate("friends", "username")
+        .exec();
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+      const friends = user.friends.map((friend) => ({
+        _id: friend._id,
+        username: friend.username,
+      }));
+      res.json(friends);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error fetching friends" });
     }
   }
 );
@@ -123,27 +217,5 @@ user.post("/post", authMiddleware, (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error });
   }
 });
-
-user.get(
-  "/get-all-posts",
-  authMiddleware,
-  async (req: Request, res: Response) => {
-    try {
-      const allPosts = await Post.find().populate("user", "username");
-      const allPostsSimpleUsernames = allPosts.map((post) => ({
-        content: post.content,
-        img: post.img,
-        createdAt: post.createdAt,
-        user: post.user.username,
-      }));
-
-      res.json(allPostsSimpleUsernames);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Something went wrong", error });
-    }
-  }
-);
 
 export default user;
