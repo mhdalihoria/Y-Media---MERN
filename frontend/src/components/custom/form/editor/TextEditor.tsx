@@ -54,7 +54,7 @@ const lowlight = createLowlight(common);
 const StyledEditor = styled(EditorContent)((theme) => ({
   background: "transparent",
   padding: "1rem 2rem",
-  minHeight: "250px",
+  minHeight: "100px",
   maxHeight: "fit-content",
 
   "& >:focus": {
