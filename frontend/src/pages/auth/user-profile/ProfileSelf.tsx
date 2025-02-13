@@ -1,20 +1,24 @@
 import { Box, IconButton, Tab, Tabs } from "@mui/material";
 import Post from "../../../components/Post";
 import { useAuthStore } from "../../../stores/authStore";
-import { borderRadius, fontWeight, maxWidth, styled, width } from "@mui/system";
+import { styled } from "@mui/system";
 import { useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import LoadingPosts from "../../../components/LoadingPosts";
 import LoadingFriends from "../../../components/LoadingFriends";
+import useUserStore from "../../../stores/userStore";
+import RenderPost from "./RenderPost";
+import DefaultUser from "../../../assets/default-user.jpg";
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
+  marginBottom: "2rem",
   "& .cover-img-container": {
     width: "100%",
     height: "250px",
     "& .cover-img": {
       width: "100%",
       height: "100%",
-      "objectFit": "cover",
+      objectFit: "cover",
     },
   },
 
@@ -48,7 +52,7 @@ const StyledHeaderContainer = styled(Box)(({ theme }) => ({
       fontSize: "1.35rem",
     },
     "& p": {
-      maxWidth: "400px",
+      maxWidth: "300px",
       fontSize: "0.875rem",
       color: theme.palette.text.secondary,
       fontWeight: 400,
@@ -63,20 +67,35 @@ const StyledHeaderContainer = styled(Box)(({ theme }) => ({
 
 export default function ProfileSelf() {
   const { userId, token } = useAuthStore();
+  const {
+    username,
+    bio,
+    coverImg,
+    profileImg,
+    friends,
+    userPosts,
+    likedPosts,
+  } = useUserStore();
   const [tabValue, setTabValue] = useState(0);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  console.log(userPosts);
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
+  console.log(userPosts);
   return (
-    <Box >
+    <Box>
       <StyledHeaderContainer>
         <div className="cover-img-container">
-          <img src="https://placehold.co/600x400.png" className="cover-img" />
+          <img
+            src={coverImg || "https://placehold.co/600x400.png"}
+            className="cover-img"
+          />
         </div>
         <div className="profile-img-container">
-          <img src="https://placehold.co/100x100.png" className="profile-img" />
+          <img src={profileImg || DefaultUser} className="profile-img" />
           <IconButton
             className="edit-profile"
             size="small"
@@ -86,11 +105,8 @@ export default function ProfileSelf() {
           </IconButton>
         </div>
         <div className="text-container">
-          <h3>Username</h3>
-          <p>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut l
-          </p>
+          <h3>{username}</h3>
+          <p>{bio}</p>
         </div>
         <Tabs
           value={tabValue}
@@ -104,9 +120,28 @@ export default function ProfileSelf() {
         </Tabs>
       </StyledHeaderContainer>
 
-      {tabValue === 0 && <LoadingPosts />}
-      {tabValue === 1 && <LoadingPosts />}
-      {tabValue === 2 && <LoadingFriends />}
+      {tabValue === 0 && (
+        <>
+          <Post token={token} userId={userId}/>
+          {userPosts.length > 0 ? (
+            userPosts.map((post) => RenderPost(post))
+          ) : (
+            <LoadingPosts />
+          )}
+        </>
+      )}
+      {tabValue === 1 &&
+        (likedPosts.length > 0 ? (
+          likedPosts.map((post) => RenderPost(post))
+        ) : (
+          <LoadingPosts />
+        ))}
+      {tabValue === 2 &&
+        (friends.length > 0 ? (
+          friends.map((friend) => <div>{friend.username}</div>)
+        ) : (
+          <LoadingFriends />
+        ))}
     </Box>
   );
 }

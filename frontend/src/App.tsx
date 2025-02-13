@@ -3,7 +3,6 @@ import "./App.css";
 import { Route, Routes } from "react-router";
 import HomeLayout from "./layouts/HomeLayout";
 import HomePage from "./pages/HomePage";
-import UserLayout from "./layouts/UserLayout";
 import ProfileSelf from "./pages/auth/user-profile/ProfileSelf";
 import AuthLayout from "./layouts/AuthLayout";
 import Login from "./pages/auth/Login";
@@ -15,8 +14,15 @@ import axios from "axios";
 
 function App() {
   const { userId, token, setToken } = useAuthStore();
-  const { setUsername, setBio, setCoverImg, setProfileImg, setFriends } =
-    useUserStore();
+  const {
+    setUsername,
+    setBio,
+    setCoverImg,
+    setProfileImg,
+    setFriends,
+    setUserPosts,
+    setLikedPosts,
+  } = useUserStore();
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -42,14 +48,23 @@ function App() {
         }
 
         const data = await response.data;
-        const { username, bio, coverImg, profileImg, friends } = data.user;
+        const {
+          username,
+          bio,
+          coverImg,
+          profileImg,
+          friends,
+          posts,
+          likedPosts,
+        } = data.user;
 
         setUsername(username);
         setBio(bio);
         setCoverImg(coverImg);
         setProfileImg(profileImg);
         setFriends(friends);
-        
+        setLikedPosts(likedPosts);
+        setUserPosts(posts);
       } catch (err) {
         console.error(err);
       }
@@ -64,16 +79,13 @@ function App() {
     <Routes>
       <Route path="/" element={<HomeLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="/profile" element={<ProfileSelf />} />
+        <Route path="/profile/:id" element={<ProfileOther />} />
       </Route>
 
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-      </Route>
-
-      <Route path="/profile" element={<UserLayout />}>
-        <Route index element={<ProfileSelf />} />
-        <Route path="/profile/:id" element={<ProfileOther />} />
       </Route>
 
       {/* 

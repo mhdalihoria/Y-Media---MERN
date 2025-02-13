@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
+import RenderPost from "./auth/user-profile/RenderPost";
 
 type post = {
   _id: string;
@@ -51,12 +52,7 @@ export default function HomePage() {
       {loading && !posts
         ? "loading..."
         : posts?.map((post, idx) => (
-            <div key={idx}>
-              <span style={{ fontSize: "0.6rem" }}>{post.createdAt}</span>
-              <span style={{ fontSize: "0.6rem" }}>{post.user}</span>
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
-              <img src={post.img} />
-            </div>
+            RenderPost(post)
           ))}
     </div>
   );

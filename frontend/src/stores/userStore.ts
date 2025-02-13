@@ -1,22 +1,41 @@
 import { create } from "zustand";
 
-interface UserState {
+type User = {
+  _id: string;
+  username: string;
+  profileImg: string;
+};
+
+
+export type Post = {
+  _id: string;
+  content: string;
+  img: string | null;
+  user: User;
+  createdAt: string; // or Date if you plan to convert it
+  // __v: number;
+};
+
+export interface UserType {
   username: string | null; // Nullable in case the user is not logged in
   bio: string | null;
   profileImg: string | null;
   coverImg: string | null;
-  friends: string[]; // Array of friend IDs
-//   likedPosts: string[]; // Array of post IDs
+  friends: User[]; // Array of friend IDs
+  likedPosts: Post[]; // Array of post IDs
+  userPosts: Post[]; // Array of post IDs
 }
 
-interface UserStore extends UserState {
+interface UserStore extends UserType {
   setUsername: (username: string) => void;
   setBio: (bio: string) => void;
   setProfileImg: (profileImg: string) => void;
   setCoverImg: (coverImg: string) => void;
-  setFriends: (friendId: string[]) => void;
-//   addFriend: (friendId: string) => void;
-//   likePost: (postId: string) => void;
+  setFriends: (friends: User[]) => void;
+  setLikedPosts: (posts: Post[]) => void;
+  setUserPosts: (posts: Post[]) => void;
+  //   addFriend: (friendId: string) => void;
+  // likePost: (postId: string) => void;
   clearUser: () => void; // Clear the user state
 }
 
@@ -27,7 +46,8 @@ const useUserStore = create<UserStore>((set) => ({
   profileImg: null,
   coverImg: null,
   friends: [],
-//   likedPosts: [],
+  likedPosts: [],
+  userPosts: [],
 
   // Setters
   setUsername: (username: string) => set((state) => ({ ...state, username })),
@@ -35,20 +55,21 @@ const useUserStore = create<UserStore>((set) => ({
   setProfileImg: (profileImg: string) =>
     set((state) => ({ ...state, profileImg })),
   setCoverImg: (coverImg: string) => set((state) => ({ ...state, coverImg })),
-  setFriends: (friends: string[])=> set((state) =>({...state, friends})),
-//   setLikedPosts: (posts: string[])=> set((state) =>({...state, friends})),
+  setFriends: (friends: User[]) => set((state) => ({ ...state, friends })),
+  setLikedPosts: (likedPosts: Post[]) => set((state) => ({ ...state, likedPosts })),
+  setUserPosts: (userPosts: Post[]) => set((state) => ({ ...state, userPosts })),
 
   // Friends Management
-//   addFriend: (friendId: string) =>
-//     set((state) => ({ friends: [...state.friends, friendId] })),
+  //   addFriend: (friendId: string) =>
+  //     set((state) => ({ friends: [...state.friends, friendId] })),
   //   removeFriend: (friendId: string) =>
   //     set((state) => ({
   //       friends: state.friends.filter((id) => id !== friendId),
   //     })),
 
   // Liked Posts Management
-//   likePost: (postId: string) =>
-//     set((state) => ({ likedPosts: [...state.likedPosts, postId] })),
+  //   likePost: (postId: string) =>
+  //     set((state) => ({ likedPosts: [...state.likedPosts, postId] })),
   //   unlikePost: (postId: string) =>
   //     set((state) => ({
   //       likedPosts: state.likedPosts.filter((id) => id !== postId),
@@ -62,7 +83,8 @@ const useUserStore = create<UserStore>((set) => ({
       profileImg: null,
       coverImg: null,
       friends: [],
-    //   likedPosts: [],
+      userPosts: [],
+      likedPosts: [],
     }),
 }));
 
