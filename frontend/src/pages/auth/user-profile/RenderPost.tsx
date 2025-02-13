@@ -1,21 +1,47 @@
 import { Post } from "../../../stores/userStore";
 import DefaultUser from "../../../assets/default-user.jpg";
+import { Box, Typography } from "@mui/material";
 
 export default function RenderPost(post: Post) {
   console.log(post);
+
+  const date = new Date(post.createdAt);
+
+  // Format as a readable date
+  const readableDate = date.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+
   return (
-    <div>
+    <Box
+      sx={{
+        marginTop: "1.5rem",
+        border: `2px solid`,
+        borderColor: (theme) => theme.palette.background.paper,
+        borderRadius: "15px",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          marginTop: "1.5rem",
-          gap: ".675rem",
+          gap: "1rem",
+          padding: "1rem ",
         }}
       >
         <img
           src={post.user.profileImg || DefaultUser}
-          style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "100%" }}
+          style={{
+            width: "50px",
+            height: "50px",
+            objectFit: "cover",
+            borderRadius: "100%",
+          }}
         />
         <div
           style={{
@@ -25,15 +51,19 @@ export default function RenderPost(post: Post) {
             width: "90%",
           }}
         >
-          <h3 style={{marginTop: ".6em"}}>{post.user.username}</h3> <span>{post.createdAt}</span>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+            <h3 style={{ marginTop: ".2em" }}>{post.user.username}</h3>
+            <Typography
+              sx={{
+                color: (theme) => theme.palette.text.secondary,
+                fontSize: ".75rem",
+              }}
+            >
+              {readableDate}
+            </Typography>
+          </div>
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
 
-          {post.img && (
-            <img
-              src={post.img}
-              style={{ objectFit: "fill", width: "100%", height: "300px" }}
-            />
-          )}
           {/* <Skeleton variant="text" sx={{ fontSize: "1.25rem" }} /> */}
           {/* <Skeleton variant="rounded" width={100} height={10} />
           <Skeleton
@@ -52,6 +82,18 @@ export default function RenderPost(post: Post) {
           /> */}
         </div>
       </div>
-    </div>
+      {post.img && (
+        <img
+          src={post.img}
+          style={{
+            objectFit: "fill",
+            width: "100%",
+            height: "300px",
+            marginBottom: "2rem",
+            marginTop: "-1rem"
+          }}
+        />
+      )}
+    </Box>
   );
 }
