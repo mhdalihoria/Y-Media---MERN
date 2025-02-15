@@ -47,7 +47,7 @@ user.get(
             username: friend.username,
             profileImg: friend.profileImg,
           })),
-          posts: userPosts,
+          userPosts,
           likedPosts: likedPosts,
         },
       });
@@ -65,7 +65,7 @@ user.get(
     try {
       const allPosts = await Post.find().populate(
         "user",
-        "username profileImg"
+        "username profileImg id"
       );
       const allPostsSimpleUsernames = allPosts.map((post) => ({
         content: post.content,
@@ -74,6 +74,7 @@ user.get(
         user: {
           username: post.user.username,
           profileImg: post.user.profileImg,
+          _id: post.user._id,
         },
       }));
 

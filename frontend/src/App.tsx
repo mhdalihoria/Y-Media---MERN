@@ -10,8 +10,8 @@ import Signup from "./pages/auth/Signup";
 import { useAuthStore } from "./stores/authStore";
 import useUserStore from "./stores/userStore";
 import ProfileOther from "./pages/auth/user-profile/ProfileOther";
-import axios from "axios";
 import apiClient from "./api/axiosInstance";
+import EditProfile from "./pages/auth/user-profile/EditProfile";
 
 function App() {
   const { userId, token, setToken } = useAuthStore();
@@ -54,7 +54,7 @@ function App() {
           coverImg,
           profileImg,
           friends,
-          posts,
+          userPosts,
           likedPosts,
         } = data.user;
 
@@ -64,7 +64,7 @@ function App() {
         setProfileImg(profileImg);
         setFriends(friends);
         setLikedPosts(likedPosts);
-        setUserPosts(posts);
+        setUserPosts(userPosts);
       } catch (err) {
         console.error(err);
       }
@@ -81,6 +81,7 @@ function App() {
         <Route index element={<HomePage />} />
         <Route path="/profile" element={<ProfileSelf />} />
         <Route path="/profile/:id" element={<ProfileOther />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
       </Route>
 
       <Route element={<AuthLayout />}>
