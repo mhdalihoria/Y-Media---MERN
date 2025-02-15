@@ -62,6 +62,7 @@ export default function Login() {
         throw new Error("Something Went Wrong...");
       }
 
+      console.log(responseData.token, responseData.userId);
       setToken(responseData.token);
 
       setUser(responseData.userId);

@@ -76,7 +76,7 @@ auth.post(
 
       // Generate JWT
       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
-        expiresIn: "7d",
+        expiresIn: "30d",
       });
       
       res.status(200).json({ success: true, userId: user.id, token });

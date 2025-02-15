@@ -11,6 +11,7 @@ import { useAuthStore } from "./stores/authStore";
 import useUserStore from "./stores/userStore";
 import ProfileOther from "./pages/auth/user-profile/ProfileOther";
 import axios from "axios";
+import apiClient from "./api/axiosInstance";
 
 function App() {
   const { userId, token, setToken } = useAuthStore();
@@ -34,8 +35,7 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/user/profile/${userId}/`,
+        const response = await apiClient.get(`/user/profile/${userId}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

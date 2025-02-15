@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import RenderPost from "./auth/user-profile/RenderPost";
+import apiClient from "../api/axiosInstance";
 
 type post = {
   _id: string;
@@ -21,14 +22,11 @@ export default function HomePage() {
     const fetchAllPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/user/get-all-posts`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await apiClient.get(`/user/get-all-posts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = (await response.data) as post[];
 
@@ -51,9 +49,7 @@ export default function HomePage() {
     <div>
       {loading && !posts
         ? "loading..."
-        : posts?.map((post, idx) => (
-            RenderPost(post)
-          ))}
+        : posts?.map((post, idx) => RenderPost(post))}
     </div>
   );
 }
