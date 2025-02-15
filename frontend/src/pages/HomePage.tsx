@@ -49,7 +49,7 @@ export default function HomePage() {
     <div>
       {loading && !posts
         ? "loading..."
-        : posts?.map((post, idx) => RenderPost(post))}
+        : posts?.map((post, idx) => RenderPost(post, userId, idx))}
     </div>
   );
 }

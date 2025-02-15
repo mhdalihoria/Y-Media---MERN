@@ -1,10 +1,13 @@
 import { Post } from "../../../stores/userStore";
 import DefaultUser from "../../../assets/default-user.jpg";
 import { Box, Typography } from "@mui/material";
+import { NavLink } from "react-router";
 
-export default function RenderPost(post: Post) {
-  console.log(post);
-
+export default function RenderPost(
+  post: Post,
+  userId: string | null,
+  idx: string
+) {
   const date = new Date(post.createdAt);
 
   // Format as a readable date
@@ -25,6 +28,7 @@ export default function RenderPost(post: Post) {
         display: "flex",
         flexDirection: "column",
       }}
+      key={idx}
     >
       <div
         style={{
@@ -52,7 +56,18 @@ export default function RenderPost(post: Post) {
           }}
         >
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-            <h3 style={{ marginTop: ".2em" }}>{post.user.username}</h3>
+            <h3 style={{ marginTop: ".2em", cursor: "pointer" }}>
+              <NavLink
+                to={
+                  userId === post.user._id
+                    ? "/profile"
+                    : `/profile/${post.user._id}`
+                }
+                style={{ textDecoration: "none" }}
+              >
+                {post.user.username}
+              </NavLink>
+            </h3>
             <Typography
               sx={{
                 color: (theme) => theme.palette.text.secondary,
@@ -63,23 +78,6 @@ export default function RenderPost(post: Post) {
             </Typography>
           </div>
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
-
-          {/* <Skeleton variant="text" sx={{ fontSize: "1.25rem" }} /> */}
-          {/* <Skeleton variant="rounded" width={100} height={10} />
-          <Skeleton
-            variant="rounded"
-            width={350}
-            height={16}
-            sx={{ marginTop: ".4rem" }}
-          />
-          <Skeleton variant="rounded" width={300} height={16} />
-          <Skeleton variant="rounded" width={50} height={16} />
-          <Skeleton
-            variant="rounded"
-            width={350}
-            height={160}
-            sx={{ marginTop: "1rem" }}
-          /> */}
         </div>
       </div>
       {post.img && (
@@ -90,7 +88,7 @@ export default function RenderPost(post: Post) {
             width: "100%",
             height: "300px",
             marginBottom: "2rem",
-            marginTop: "-1rem"
+            marginTop: "-1rem",
           }}
         />
       )}
