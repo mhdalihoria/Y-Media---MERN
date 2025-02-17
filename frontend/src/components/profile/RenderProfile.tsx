@@ -8,6 +8,8 @@ import { FiEdit } from "react-icons/fi";
 import DefaultUser from "../../assets/default-user.jpg";
 import { UserType } from "../../stores/userStore";
 import RenderPost from "../../pages/auth/user-profile/RenderPost";
+import Empty from "../Empty";
+import NotFound from "../NotFound";
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
   marginBottom: "2rem",
@@ -132,9 +134,7 @@ export default function RenderProfile({
 
       {tabValue === 0 && (
         <>
-          {token && userId && isOwnProfile && (
-            <Post token={token} userId={userId} />
-          )}
+          {isOwnProfile && <Post token={token} userId={userId} />}
           {userPosts.length > 0 ? (
             userPosts.map((post) => RenderPost(post))
           ) : (
@@ -146,13 +146,15 @@ export default function RenderProfile({
         (likedPosts.length > 0 ? (
           likedPosts.map((post) => RenderPost(post))
         ) : (
-          <LoadingPosts />
+          // <LoadingPosts />
+          <Empty />
         ))}
       {tabValue === 2 &&
         (friends.length > 0 ? (
           friends.map((friend) => <div>{friend.username}</div>)
         ) : (
-          <LoadingFriends />
+          // <LoadingFriends />
+          <NotFound />
         ))}
     </Box>
   );
