@@ -156,4 +156,83 @@ user.post("/post", authMiddleware, (req: Request, res: Response) => {
   }
 });
 
+user.patch(
+  "/update-profile",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const { bio, profileImg, coverImg } = req.body as {
+        bio: string;
+        profileImg: string;
+        coverImg: string;
+      };
+
+      // Validate input
+      if (bio && typeof bio !== "string") {
+        res
+          .status(400)
+          .json({ success: false, message: "Bio must be a string" });
+        return;
+      }
+
+      if (bio && bio.length > 120) {
+        res.status(400).json({
+          success: false,
+          message: "Bio must be shorter than 120 characters",
+        });
+      }
+      if (profileImg && typeof profileImg !== "string") {
+        res.status(400).json({
+          success: false,
+          message: "Profile image URL must be a string",
+        });
+        return;
+      }
+      if (coverImg && typeof coverImg !== "string") {
+        res.status(400).json({
+          success: false,
+          message: "Cover image URL must be a string",
+        });
+        return;
+      }
+
+      // Extract user ID from the authenticated user (set by authMiddleware)
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
+      // Update the user document
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: { bio, profileImg, coverImg } }, // Only update the provided fields
+        { new: true, runValidators: true } // Return the updated document and validate the update
+      );
+
+      if (!updatedUser) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      // Respond with the updated user data
+      res.json({
+        sucess: true,
+        message: "Profile updated successfully",
+        user: {
+          username: updatedUser.username,
+          email: updatedUser.email,
+          bio: updatedUser.bio,
+          profileImg: updatedUser.profileImg,
+          coverImg: updatedUser.coverImg,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Something went wrong", error });
+    }
+  }
+);
+
 export default user;
