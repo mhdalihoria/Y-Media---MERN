@@ -10,6 +10,7 @@ import { UserType } from "../../stores/userStore";
 import RenderPost from "../../pages/auth/user-profile/RenderPost";
 import Empty from "../Empty";
 import NotFound from "../NotFound";
+import { useNavigate } from "react-router";
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
   marginBottom: "2rem",
@@ -85,7 +86,7 @@ export default function RenderProfile({
     userPosts,
     likedPosts,
   } = userProps;
-
+ const navigate = useNavigate()
   const [tabValue, setTabValue] = useState(0);
 
   console.log(userPosts);
@@ -110,7 +111,7 @@ export default function RenderProfile({
             <IconButton
               className="edit-profile"
               size="small"
-              onClick={() => console.log("profile edited")}
+              onClick={() => navigate("/edit-profile")}
             >
               <FiEdit />
             </IconButton>
