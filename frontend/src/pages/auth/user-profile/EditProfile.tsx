@@ -5,9 +5,62 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState } from "react";
 import axios from "axios";
 import { CInputField } from "../../../components/custom/form/CInputField";
-import { Box } from "@mui/material";
+import { Alert, Box, styled } from "@mui/material";
 import { CButton } from "../../../components/custom/form/CButton";
 import { useAuthStore } from "../../../stores/authStore";
+import DefaultUser from "../../../assets/default-user.jpg";
+import { useNavigate } from "react-router";
+//----------------------------------------------------
+
+const StyledHeaderContainer = styled(Box)(({ theme }) => ({
+  marginBottom: "2rem",
+  "& .cover-img-container": {
+    width: "100%",
+    height: "250px",
+    "& .cover-img": {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    },
+    "& .cover-img:hover": {
+      filter: "brightness(50%)",
+      cursor: "pointer",
+    },
+  },
+
+  "& .profile-img-container": {
+    width: "fit-content",
+    display: "flex",
+    justifyContent: "start",
+    transform: "translateY(-50%)",
+  },
+
+  "& .profile-img": {
+    width: "125px",
+    height: "125px",
+    objectFit: "cover",
+    marginLeft: "1rem",
+    borderRadius: "100%",
+    border: `3px solid ${theme.palette.background.default}`,
+  },
+
+  "& .profile-img:hover": {
+    filter: "brightness(50%)",
+    cursor: "pointer",
+  },
+
+  "& .text-container": {
+    margin: "-50px 1.5rem 0",
+
+    "& h3": {
+      fontWeight: 700,
+      fontSize: "1.35rem",
+    },
+  },
+}));
+//----------------------------------------------------
+
+//----------------------------------------------------
 
 const editProfileSchema = z.object({
   bio: z.string().max(120, "Bio must be at most 120 characters"),
@@ -16,18 +69,32 @@ const editProfileSchema = z.object({
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
+//----------------------------------------------------
 
 export default function EditProfile() {
-  const { bio, coverImg, profileImg, setBio, setCoverImg, setProfileImg } =
-    useUserStore();
+  const {
+    username,
+    bio,
+    coverImg,
+    profileImg,
+    setBio,
+    setCoverImg,
+    setProfileImg,
+  } = useUserStore();
   const { token } = useAuthStore();
-
+  const navigate = useNavigate();
+  //----------------------------------------------------
   const coverImgRef = useRef<HTMLInputElement>(null); // File input ref
   const profileImgRef = useRef<HTMLInputElement>(null); // File input ref
-
+  //----------------------------------------------------
   const [coverImgPreview, setCoverImgPreview] = useState();
   const [profileImgPreview, setProfileImgPreview] = useState();
-
+  const [loading, setLoading] = useState(false);
+  const [responseMsg, setResponseMsg] = useState({
+    success: false,
+    message: "",
+  });
+  //----------------------------------------------------
   const {
     register,
     handleSubmit,
@@ -38,9 +105,11 @@ export default function EditProfile() {
       bio: bio || "",
     },
   });
+  //----------------------------------------------------
 
   // Handle form submission
   const onSubmit = async (data: EditProfileFormData) => {
+    setLoading(true);
     try {
       let uploadedProfileImg = profileImg; // Default to current profile image
       let uploadedCoverImg = coverImg; // Default to current cover image
@@ -67,16 +136,28 @@ export default function EditProfile() {
       }
 
       await updateProfile(data.bio, uploadedProfileImg, uploadedCoverImg);
+      setResponseMsg({
+        success: true,
+        message: "Profile Updated",
+      });
+      if (responseMsg.success) {
+        setTimeout(() => {
+          navigate("/profile");
+        }, 3000);
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      setResponseMsg({
+        success: false,
+        message: "Something Went Wrong. Try Again Later",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Helper function to upload an image to Cloudinary
   const uploadImageToCloudinary = async (image: File): Promise<string> => {
-    console.log("uploadImageToCloudinary called with image:", image); // Add this line
-
     try {
       // Step 1: Get signature from your backend
       const { data: credentials } = await axios.post(
@@ -103,7 +184,6 @@ export default function EditProfile() {
         formData
       );
 
-      console.log(res);
       return res.data.secure_url; // Return the secure URL of the uploaded image
     } catch (error) {
       console.error("Error uploading image to Cloudinary:", error);
@@ -127,9 +207,7 @@ export default function EditProfile() {
         }
       );
 
-      const data = response.data;
-
-      console.log(data); // Handle success
+      return response;
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile. Please try again.");
@@ -137,23 +215,45 @@ export default function EditProfile() {
   };
 
   return (
-    <div>
+    <div style={{ height: "100vh" }}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Bio Field */}
-        <div>
-          <label>Bio:</label>
-          <CInputField
-            multiline
-            rows={3}
-            {...register("bio")}
-            error={!!errors.bio}
-            helperText={errors.bio?.message}
-          />
-        </div>
+        <StyledHeaderContainer>
+          <div className="cover-img-container">
+            <img
+              src={
+                (coverImgPreview && URL.createObjectURL(coverImgPreview)) ||
+                coverImg ||
+                "https://placehold.co/600x400.png"
+              }
+              className="cover-img"
+              onClick={() => coverImgRef.current?.click()}
+            />
+          </div>
+          <div className="profile-img-container">
+            <img
+              src={
+                (profileImgPreview && URL.createObjectURL(profileImgPreview)) ||
+                profileImg ||
+                DefaultUser
+              }
+              className="profile-img"
+              onClick={() => profileImgRef.current?.click()}
+            />
+          </div>
+          <div className="text-container">
+            <h3>{username}</h3>
+            <CInputField
+              multiline
+              rows={3}
+              {...register("bio")}
+              error={!!errors.bio}
+              helperText={errors.bio?.message}
+            />
+          </div>
+        </StyledHeaderContainer>
 
-        {/* Profile Image Upload */}
         <div>
-          <h4>Profile Image:</h4>
+          {/* Profile Image Upload */}
           <input
             type="file"
             accept="image/*"
@@ -167,25 +267,8 @@ export default function EditProfile() {
               }
             }}
           />
-          <CButton
-            onClick={() => profileImgRef.current?.click()}
-            btnSize="xs"
-            variant="outlined"
-          >
-            Upload
-          </CButton>
-          {profileImgPreview && (
-            <img
-              src={URL.createObjectURL(profileImgPreview)} // Generate Blob URL
-              alt="Cover Preview"
-              width="100"
-            />
-          )}
-        </div>
 
-        {/* Cover Image Upload */}
-        <div>
-          <h4>Cover Image</h4>
+          {/* Cover Image Upload */}
           <input
             type="file"
             accept="image/*"
@@ -199,91 +282,34 @@ export default function EditProfile() {
               }
             }}
           />
-          <CButton
-            onClick={() => coverImgRef.current?.click()}
-            btnSize="xs"
-            variant="outlined"
-          >
-            Upload
-          </CButton>
-          {coverImgPreview && (
-            <img
-              src={URL.createObjectURL(coverImgPreview)} // Generate Blob URL
-              alt="Cover Preview"
-              width="100"
-            />
-          )}
         </div>
 
         {/* Submit Button */}
-        <CButton type="submit">Save Changes</CButton>
+        <div style={{ width: "100%", display: "flex" }}>
+          <CButton
+            type="submit"
+            btnSize="sm"
+            sx={{ width: "90%", margin: "auto" }}
+            disabled={loading}
+          >
+            Save Changes
+          </CButton>
+        </div>
       </form>
+
+      {responseMsg.message.length > 1 && (
+        <Alert
+          severity={responseMsg.success ? "success" : "error"}
+          sx={{
+            width: "fit-content",
+            position: "fixed",
+            bottom: "3rem",
+            right: "3rem",
+          }}
+        >
+          {responseMsg.message}
+        </Alert>
+      )}
     </div>
   );
 }
-
-// const uploadPost = async () => {
-//   if (!editor.trim()) {
-//     alert("Content cannot be empty!");
-//     return;
-//   }
-
-//   setUploading(true);
-
-//   try {
-//     let img = null;
-
-//     // If an image is selected, upload it to Cloudinary
-//     if (image) {
-//       // Step 1: Get signature from your backend
-//       const { data: credentials } = await axios.post(
-//         `${import.meta.env.VITE_BACKEND_URL}/api/cloudinary/sign`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`, // Add the auth token as a Bearer token
-//           },
-//         }
-//       );
-
-//       // Step 2: Prepare Cloudinary upload
-//       const formData = new FormData();
-//       formData.append("file", image);
-//       formData.append("upload_preset", credentials.upload_preset);
-//       formData.append("api_key", credentials.api_key);
-//       formData.append("timestamp", credentials.timestamp);
-//       formData.append("signature", credentials.signature);
-
-//       // Step 3: Upload to Cloudinary
-//       const res = await axios.post(
-//         `https://api.cloudinary.com/v1_1/${credentials.cloud_name}/image/upload`,
-//         formData
-//       );
-//       img = res.data.secure_url; // Save the secure URL of the uploaded image
-//     }
-
-//     // Step 4: Send post data to the backend
-//     const postData = {
-//       content: editor,
-//       img: img || null, // Include the image URL if available, otherwise set to null
-//       user: userId,
-//     };
-
-//     const response = await axios.post(
-//       `${import.meta.env.VITE_BACKEND_URL}/user/post`,
-//       postData,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`, // Add the auth token as a Bearer token
-//         },
-//       }
-//     );
-
-//     console.log(response.status, response.data);
-//     alert("Post created successfully!");
-//   } catch (error) {
-//     console.error("Post creation failed:", error);
-//     alert("Failed to create post. Please try again.");
-//   } finally {
-//     setUploading(false);
-//   }
-// }
