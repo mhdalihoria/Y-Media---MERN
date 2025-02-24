@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import useUserStore from "../../../stores/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import axios from "axios";
 import { CInputField } from "../../../components/custom/form/CInputField";
 import { Box } from "@mui/material";
@@ -24,6 +24,9 @@ export default function EditProfile() {
 
   const coverImgRef = useRef<HTMLInputElement>(null); // File input ref
   const profileImgRef = useRef<HTMLInputElement>(null); // File input ref
+
+  const [coverImgPreview, setCoverImgPreview] = useState();
+  const [profileImgPreview, setProfileImgPreview] = useState();
 
   const {
     register,
@@ -157,6 +160,12 @@ export default function EditProfile() {
             {...register("profileImg")} // Register the file input
             ref={profileImgRef}
             hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setProfileImgPreview(file); // Update state with the selected file
+              }
+            }}
           />
           <CButton
             onClick={() => profileImgRef.current?.click()}
@@ -165,6 +174,13 @@ export default function EditProfile() {
           >
             Upload
           </CButton>
+          {profileImgPreview && (
+            <img
+              src={URL.createObjectURL(profileImgPreview)} // Generate Blob URL
+              alt="Cover Preview"
+              width="100"
+            />
+          )}
         </div>
 
         {/* Cover Image Upload */}
@@ -176,6 +192,12 @@ export default function EditProfile() {
             {...register("coverImg")} // Register the file input
             hidden
             ref={coverImgRef}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setCoverImgPreview(file); // Update state with the selected file
+              }
+            }}
           />
           <CButton
             onClick={() => coverImgRef.current?.click()}
@@ -184,6 +206,13 @@ export default function EditProfile() {
           >
             Upload
           </CButton>
+          {coverImgPreview && (
+            <img
+              src={URL.createObjectURL(coverImgPreview)} // Generate Blob URL
+              alt="Cover Preview"
+              width="100"
+            />
+          )}
         </div>
 
         {/* Submit Button */}
