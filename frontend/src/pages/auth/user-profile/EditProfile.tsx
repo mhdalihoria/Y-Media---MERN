@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import useUserStore from "../../../stores/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import axios from "axios";
 import { CInputField } from "../../../components/custom/form/CInputField";
 import { Box } from "@mui/material";
@@ -41,16 +41,20 @@ export default function EditProfile() {
     try {
       let uploadedProfileImg = profileImg; // Default to current profile image
       let uploadedCoverImg = coverImg; // Default to current cover image
-      console.log(data);
+
+      // Get the selected files from the refs
+      const profileImgFile = profileImgRef.current?.files?.[0];
+      const coverImgFile = coverImgRef.current?.files?.[0];
+
       // Upload profile image if provided
-      if (data.profileImg) {
-        uploadedProfileImg = await uploadImageToCloudinary(data.profileImg);
+      if (profileImgFile) {
+        uploadedProfileImg = await uploadImageToCloudinary(profileImgFile);
         setProfileImg(uploadedProfileImg); // Update global state
       }
 
       // Upload cover image if provided
-      if (data.coverImg) {
-        uploadedCoverImg = await uploadImageToCloudinary(data.coverImg);
+      if (coverImgFile) {
+        uploadedCoverImg = await uploadImageToCloudinary(coverImgFile);
         setCoverImg(uploadedCoverImg); // Update global state
       }
 
@@ -150,16 +154,16 @@ export default function EditProfile() {
           <input
             type="file"
             accept="image/*"
-            {...register("profileImg")}
-            hidden
+            {...register("profileImg")} // Register the file input
             ref={profileImgRef}
+            hidden
           />
           <CButton
             onClick={() => profileImgRef.current?.click()}
             btnSize="xs"
             variant="outlined"
           >
-            Upload{" "}
+            Upload
           </CButton>
         </div>
 
@@ -169,17 +173,16 @@ export default function EditProfile() {
           <input
             type="file"
             accept="image/*"
-            {...register("coverImg")}
+            {...register("coverImg")} // Register the file input
             hidden
             ref={coverImgRef}
           />
-
           <CButton
             onClick={() => coverImgRef.current?.click()}
             btnSize="xs"
             variant="outlined"
           >
-            Upload{" "}
+            Upload
           </CButton>
         </div>
 
