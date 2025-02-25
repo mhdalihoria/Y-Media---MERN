@@ -7,10 +7,10 @@ import Post from "../Post";
 import { FiEdit } from "react-icons/fi";
 import DefaultUser from "../../assets/default-user.jpg";
 import { UserType } from "../../stores/userStore";
-import RenderPost from "../../pages/auth/user-profile/RenderPost";
 import Empty from "../Empty";
 import NotFound from "../NotFound";
 import { useNavigate } from "react-router";
+import RenderPost from "../../pages/auth/user-profile/RenderPost";
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
   marginBottom: "2rem",
@@ -136,9 +136,16 @@ export default function RenderProfile({
         <>
           {isOwnProfile && <Post token={token!} userId={userId} />}
           {userPosts.length > 0 ? (
-            userPosts.map((post, idx) =>
-              RenderPost(post, userId, `${idx}`, true)
-            )
+            userPosts.map((post, idx) => (
+              // RenderPost(post, userId, `${idx}`, true)
+              <RenderPost
+                post={post}
+                userId={userId}
+                idx={idx.toString()}
+                canDelete={true}
+                key={idx}
+              />
+            ))
           ) : (
             <LoadingPosts />
           )}
@@ -146,9 +153,9 @@ export default function RenderProfile({
       )}
       {tabValue === 1 &&
         (likedPosts.length > 0 ? (
-          likedPosts.map((post, idx) =>
-            RenderPost(post, userId, `${idx}`)
-          )
+          likedPosts.map((post, idx) => (
+            <RenderPost post={post} userId={userId} idx={idx.toString()} key={idx}/>
+          ))
         ) : (
           // <LoadingPosts />
           <Empty />
