@@ -12,6 +12,8 @@ import useUserStore from "./stores/userStore";
 import ProfileOther from "./pages/auth/user-profile/ProfileOther";
 import apiClient from "./api/axiosInstance";
 import EditProfile from "./pages/auth/user-profile/EditProfile";
+import { useAlertStore } from "./stores/alertStore";
+import { Alert, AlertColor } from "@mui/material";
 
 function App() {
   const { userId, token, setToken } = useAuthStore();
@@ -24,6 +26,7 @@ function App() {
     setUserPosts,
     setLikedPosts,
   } = useUserStore();
+  const { status, message, setAlert } = useAlertStore();
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -35,13 +38,11 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await apiClient.get(`/user/profile/${userId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await apiClient.get(`/user/profile/${userId}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.status !== 200) {
           throw new Error();
@@ -75,32 +76,52 @@ function App() {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (status) {
+      const timer = setTimeout(() => {
+        setAlert(null, null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
   return (
-    <Routes>
-      <Route path="/" element={<HomeLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="/profile" element={<ProfileSelf />} />
-        <Route path="/profile/:id" element={<ProfileOther />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-      </Route>
+    <>
+      <Routes>
+        <Route path="/" element={<HomeLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="/profile" element={<ProfileSelf />} />
+          <Route path="/profile/:id" element={<ProfileOther />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
+        </Route>
 
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Route>
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
 
-      {/* 
-      <Route element={<AuthLayout />}> //layout component => routes with no "path" are for layouts
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-      </Route>
+        {/* 
+    <Route element={<AuthLayout />}> //layout component => routes with no "path" are for layouts
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
+    </Route>
 
-      <Route path="concerts">
-        <Route index element={<ConcertsHome />} />
-        <Route path=":city" element={<City />} />
-        <Route path="trending" element={<Trending />} />
-      </Route> */}
-    </Routes>
+    <Route path="concerts">
+      <Route index element={<ConcertsHome />} />
+      <Route path=":city" element={<City />} />
+      <Route path="trending" element={<Trending />} />
+    </Route> */}
+      </Routes>
+      {!!status && (
+        <Alert
+          style={{ position: "fixed", bottom: "1rem", right: "1rem" }}
+          severity={status as AlertColor}
+        >
+          {message}
+        </Alert>
+      )}
+    </>
   );
 }
 
