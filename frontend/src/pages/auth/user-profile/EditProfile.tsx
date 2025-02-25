@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import useUserStore from "../../../stores/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { CInputField } from "../../../components/custom/form/CInputField";
 import { Alert, Box, styled } from "@mui/material";
@@ -104,7 +104,14 @@ export default function EditProfile() {
     },
   });
   //----------------------------------------------------
-
+  useEffect(() => {
+    if (status === "success") {
+      setTimeout(() => {
+        navigate("/profile");
+      }, 2000);
+    }
+  }, [status]);
+  //----------------------------------------------------
   // Handle form submission
   const onSubmit = async (data: EditProfileFormData) => {
     setLoading(true);
@@ -134,12 +141,6 @@ export default function EditProfile() {
       }
 
       await updateProfile(data.bio, uploadedProfileImg, uploadedCoverImg);
-
-      if (status === "success") {
-        setTimeout(() => {
-          navigate("/profile");
-        }, 3000);
-      }
     } catch (error) {
       console.error("Error updating profile:", error);
     } finally {
