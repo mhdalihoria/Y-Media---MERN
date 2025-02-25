@@ -68,6 +68,7 @@ user.get(
         "username profileImg id"
       );
       const allPostsSimpleUsernames = allPosts.map((post) => ({
+        postId: post._id,
         content: post.content,
         img: post.img,
         createdAt: post.createdAt,
@@ -155,6 +156,48 @@ user.post("/post", authMiddleware, (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error });
   }
 });
+
+user.delete(
+  "/delete-post",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const { postId } = req.body;
+      const userId = req.user?.id;
+
+      if (!postId) {
+        res
+          .status(400)
+          .json({ success: false, message: "Post ID is required" });
+        return;
+      }
+
+      const postToDelete = await Post.findById(postId);
+      if (!postToDelete) {
+        res.status(404).json({ success: false, message: "Post not found" });
+        return;
+      }
+
+      // Ensure the post belongs to the authenticated user
+      if (!postToDelete.user.equals(userId)) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
+      // Delete the post
+      await Post.findByIdAndDelete(postId);
+
+      res
+        .status(200)
+        .json({ success: true, message: "Post deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+);
 
 user.patch(
   "/update-profile",
