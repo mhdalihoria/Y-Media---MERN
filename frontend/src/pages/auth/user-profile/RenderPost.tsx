@@ -1,15 +1,60 @@
 import { Post } from "../../../stores/userStore";
 import DefaultUser from "../../../assets/default-user.jpg";
-import { Box, Typography } from "@mui/material";
-import { NavLink } from "react-router";
+import {
+  Box,
+  IconButton,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { NavLink, useLocation } from "react-router";
+import { FaTrash } from "react-icons/fa6";
+
+const PostContainerStyled = styled(Box)(({ theme }) => ({
+  marginTop: "1.5rem",
+  border: `2px solid`,
+  borderColor: theme.palette.background.paper,
+  borderRadius: "15px",
+  display: "flex",
+  flexDirection: "column",
+  position: "relative",
+
+  "&:hover": {
+    "& .delete-btn": {
+      visibility: "visible",
+    },
+  },
+
+  "& .delete-btn": {
+    position: "absolute",
+    top: "1rem",
+    right: "1rem",
+    background: "#dc3545",
+    width: "25px",
+    height: "25px",
+    borderRadius: "4px",
+  },
+  "& .delete-btn:hover": {
+    filter: "brightness(70%)",
+  },
+}));
 
 export default function RenderPost(
   post: Post,
   userId: string | null,
-  idx: string
+  idx: string,
+  canDelete?: boolean
 ) {
-  const date = new Date(post.createdAt);
+  const { pathname } = useLocation();
+  const isOnProfilePage = pathname === "/profile";
+  // -------------------------------------------
+  const theme = useTheme();
 
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  // -------------------------------------------
+  const date = new Date(post.createdAt);
   // Format as a readable date
   const readableDate = date.toLocaleString("en-US", {
     month: "long",
@@ -19,17 +64,14 @@ export default function RenderPost(
   });
 
   return (
-    <Box
-      sx={{
-        marginTop: "1.5rem",
-        border: `2px solid`,
-        borderColor: (theme) => theme.palette.background.paper,
-        borderRadius: "15px",
-        display: "flex",
-        flexDirection: "column",
-      }}
-      key={idx}
-    >
+    <PostContainerStyled key={idx}>
+      <IconButton
+        className={`delete-btn `}
+        style={isDesktop && { visibility: "hidden" }}
+        size="small"
+      >
+        <FaTrash style={{ width: "15px", height: "15px" }} />
+      </IconButton>
       <div
         style={{
           display: "flex",
@@ -92,6 +134,6 @@ export default function RenderPost(
           }}
         />
       )}
-    </Box>
+    </PostContainerStyled>
   );
 }

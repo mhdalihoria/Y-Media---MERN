@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import RenderPost from "./auth/user-profile/RenderPost";
@@ -49,7 +48,7 @@ export default function HomePage() {
     <div>
       {loading && !posts
         ? "loading..."
-        : posts?.map((post, idx) => RenderPost(post, userId, idx))}
+        : posts?.map((post, idx) => RenderPost(post, userId, idx, false ))}
     </div>
   );
 }

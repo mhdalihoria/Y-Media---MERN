@@ -32,6 +32,8 @@ const StyledHeaderContainer = styled(Box)(({ theme }) => ({
 
   "& .profile-img": {
     width: "125px",
+    height: "125px",
+    objectFit: "cover",
     marginLeft: "1rem",
     borderRadius: "100%",
     border: `3px solid ${theme.palette.background.default}`,
@@ -86,16 +88,13 @@ export default function RenderProfile({
     userPosts,
     likedPosts,
   } = userProps;
- const navigate = useNavigate()
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
-
-  console.log(userPosts);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  console.log(userPosts);
   return (
     <Box>
       <StyledHeaderContainer>
@@ -135,9 +134,11 @@ export default function RenderProfile({
 
       {tabValue === 0 && (
         <>
-          {isOwnProfile && <Post token={token} userId={userId} />}
+          {isOwnProfile && <Post token={token!} userId={userId} />}
           {userPosts.length > 0 ? (
-            userPosts.map((post) => RenderPost(post))
+            userPosts.map((post, idx) =>
+              RenderPost(post, userId, `${idx}`, true)
+            )
           ) : (
             <LoadingPosts />
           )}
@@ -145,7 +146,9 @@ export default function RenderProfile({
       )}
       {tabValue === 1 &&
         (likedPosts.length > 0 ? (
-          likedPosts.map((post) => RenderPost(post))
+          likedPosts.map((post, idx) =>
+            RenderPost(post, userId, `${idx}`)
+          )
         ) : (
           // <LoadingPosts />
           <Empty />
