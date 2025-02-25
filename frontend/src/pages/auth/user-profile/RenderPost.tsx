@@ -1,15 +1,16 @@
-import { Post } from "../../../stores/userStore";
+import useUserStore, { Post } from "../../../stores/userStore";
 import DefaultUser from "../../../assets/default-user.jpg";
 import {
   Box,
   IconButton,
   styled,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { NavLink, useLocation } from "react-router";
 import { FaTrash } from "react-icons/fa6";
+import axios from "axios";
+import { useAuthStore } from "../../../stores/authStore";
+import { useAlertStore } from "../../../stores/alertStore";
 
 const PostContainerStyled = styled(Box)(({ theme }) => ({
   marginTop: "1.5rem",
@@ -34,25 +35,35 @@ const PostContainerStyled = styled(Box)(({ theme }) => ({
     width: "25px",
     height: "25px",
     borderRadius: "4px",
+    visibility: "visible",
+    // Then override at 'md' and above:
+    [theme.breakpoints.up("md")]: {
+      visibility: "hidden",
+    },
   },
   "& .delete-btn:hover": {
     filter: "brightness(70%)",
   },
 }));
 
-export default function RenderPost(
-  post: Post,
-  userId: string | null,
-  idx: string,
-  canDelete?: boolean
-) {
+export default function RenderPost({
+  post,
+  userId,
+  idx,
+  canDelete,
+}: {
+  post: Post;
+  userId: string | null;
+  idx: string;
+  canDelete?: boolean;
+}) {
   const { pathname } = useLocation();
   const isOnProfilePage = pathname === "/profile";
   // -------------------------------------------
-  const theme = useTheme();
-
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-
+  const { token } = useAuthStore();
+  const { userPosts, setUserPosts } = useUserStore();
+  const { setAlert, message, status } = useAlertStore();
+  const postId = post._id;
   // -------------------------------------------
   const date = new Date(post.createdAt);
   // Format as a readable date
@@ -63,15 +74,47 @@ export default function RenderPost(
     minute: "numeric",
   });
 
+  const deletePost = async () => {
+    try {
+      if (!window.confirm("Are you sure you want to delete this post?")) {
+        return; // Cancel deletion if the user cancels the confirmation
+      }
+      const serverResponse = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/user/delete-post`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            postId,
+          },
+        }
+      );
+      if (serverResponse.status !== 200) {
+        throw new Error("Something Went Wrong");
+      }
+      const updatedLocalUserPosts = userPosts.filter(
+        (post) => postId !== post._id
+      );
+      setUserPosts(updatedLocalUserPosts);
+      setAlert("success", "Post Deleted Successfully");
+    } catch (err) {
+      console.error(err);
+      setAlert("error", (err as Error).message);
+    }
+  };
+
   return (
     <PostContainerStyled key={idx}>
-      <IconButton
-        className={`delete-btn `}
-        style={isDesktop && { visibility: "hidden" }}
-        size="small"
-      >
-        <FaTrash style={{ width: "15px", height: "15px" }} />
-      </IconButton>
+      {isOnProfilePage && canDelete && (
+        <IconButton
+          className={`delete-btn `}
+          size="small"
+          onClick={() => deletePost()}
+        >
+          <FaTrash style={{ width: "15px", height: "15px" }} />
+        </IconButton>
+      )}
       <div
         style={{
           display: "flex",
