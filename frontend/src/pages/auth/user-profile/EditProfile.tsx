@@ -10,6 +10,7 @@ import { CButton } from "../../../components/custom/form/CButton";
 import { useAuthStore } from "../../../stores/authStore";
 import DefaultUser from "../../../assets/default-user.jpg";
 import { useNavigate } from "react-router";
+import { useAlertStore } from "../../../stores/alertStore";
 //----------------------------------------------------
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
@@ -82,6 +83,7 @@ export default function EditProfile() {
     setProfileImg,
   } = useUserStore();
   const { token } = useAuthStore();
+  const { status, message, setAlert } = useAlertStore();
   const navigate = useNavigate();
   //----------------------------------------------------
   const coverImgRef = useRef<HTMLInputElement>(null); // File input ref
@@ -90,10 +92,6 @@ export default function EditProfile() {
   const [coverImgPreview, setCoverImgPreview] = useState();
   const [profileImgPreview, setProfileImgPreview] = useState();
   const [loading, setLoading] = useState(false);
-  const [responseMsg, setResponseMsg] = useState({
-    success: false,
-    message: "",
-  });
   //----------------------------------------------------
   const {
     register,
@@ -136,21 +134,14 @@ export default function EditProfile() {
       }
 
       await updateProfile(data.bio, uploadedProfileImg, uploadedCoverImg);
-      setResponseMsg({
-        success: true,
-        message: "Profile Updated",
-      });
-      if (responseMsg.success) {
+
+      if (status === "success") {
         setTimeout(() => {
           navigate("/profile");
         }, 3000);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      setResponseMsg({
-        success: false,
-        message: "Something Went Wrong. Try Again Later",
-      });
     } finally {
       setLoading(false);
     }
@@ -207,10 +198,13 @@ export default function EditProfile() {
         }
       );
 
-      return response;
+      if (response.status !== 200) {
+        throw new Error("Something Went Wrong. Try Again Later");
+      }
+      setAlert("success", "Profile Updated Successfully");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      setAlert("error", "Failed to update profile. Please try again");
     }
   };
 
@@ -296,20 +290,6 @@ export default function EditProfile() {
           </CButton>
         </div>
       </form>
-
-      {responseMsg.message.length > 1 && (
-        <Alert
-          severity={responseMsg.success ? "success" : "error"}
-          sx={{
-            width: "fit-content",
-            position: "fixed",
-            bottom: "3rem",
-            right: "3rem",
-          }}
-        >
-          {responseMsg.message}
-        </Alert>
-      )}
     </div>
   );
 }

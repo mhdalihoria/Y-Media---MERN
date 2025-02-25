@@ -10,5 +10,5 @@ export const useAlertStore = create<AlertState>((set) => ({
   status: null,
   message: null,
   setAlert: (status, message) =>
-    set((state) => ({ ...state, status, message })),
+    set((state) => ({ ...state, status: status?.toLowerCase(), message })),
 }));
