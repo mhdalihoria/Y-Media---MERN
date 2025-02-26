@@ -6,7 +6,7 @@ import {
   Theme,
   useMediaQuery,
 } from "@mui/material";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import { GoHome } from "react-icons/go";
 import { FiUser } from "react-icons/fi";
 import { IoIosSearch } from "react-icons/io";
@@ -42,6 +42,7 @@ const StyledToolbar = styled(Box)(({ theme }) => ({
 }));
 
 export default function HomeLayout() {
+  const navigate = useNavigate();
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   ); // Mobile devices
@@ -54,8 +55,26 @@ export default function HomeLayout() {
     { name: "Home", icon: <GoHome />, link: "/" },
     { name: "Search", icon: <IoIosSearch />, link: "/" },
     { name: "Chat", icon: <IoChatbubbleEllipsesOutline />, link: "/" },
-    { name: "Profile", icon: <FiUser />, link: "/" },
+    { name: "Profile", icon: <FiUser />, link: "/profile" },
   ];
+
+  const sideMenuItems = sideMenu.map((item) => (
+    <div
+      key={item.name}
+      style={{
+        display: "flex",
+        gap: "1rem",
+        alignItems: "center",
+        fontSize: "calc(1rem + .7vw)",
+        marginBottom: "1.2em",
+        marginLeft: ".5em",
+        cursor: "pointer",
+      }}
+      onClick={() => navigate(item.link)}
+    >
+      {item.icon} <p>{item.name}</p>
+    </div>
+  ));
 
   return (
     <StyledParentBox>
@@ -69,7 +88,7 @@ export default function HomeLayout() {
         >
           <Outlet />
           <StyledToolbar>
-            <IconButton>
+            <IconButton onClick={() => navigate("/")}>
               <GoHome />
             </IconButton>
             <IconButton>
@@ -81,7 +100,7 @@ export default function HomeLayout() {
             <IconButton>
               <IoChatbubbleEllipsesOutline />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => navigate("/profile")}>
               <FiUser />
             </IconButton>
           </StyledToolbar>
@@ -98,21 +117,7 @@ export default function HomeLayout() {
               background: (theme) => theme.palette.background.default,
             }}
           >
-            {sideMenu.map((item) => (
-              <div
-                key={item.name}
-                style={{
-                  display: "flex",
-                  gap: "1rem",
-                  alignItems: "center",
-                  fontSize: "calc(1rem + .7vw)",
-                  marginBottom: "1.2em",
-                  marginLeft: ".5em",
-                }}
-              >
-                {item.icon} <p>{item.name}</p>
-              </div>
-            ))}
+            {sideMenuItems}
           </Box>
           <Container
             maxWidth="sm"
@@ -143,21 +148,7 @@ export default function HomeLayout() {
               background: (theme) => theme.palette.background.default,
             }}
           >
-            {sideMenu.map((item) => (
-              <div
-                key={item.name}
-                style={{
-                  display: "flex",
-                  gap: "1rem",
-                  alignItems: "center",
-                  fontSize: "1.5rem",
-                  marginBottom: "1.2em",
-                  marginLeft: ".5em",
-                }}
-              >
-                {item.icon} <p>{item.name}</p>
-              </div>
-            ))}
+            {sideMenuItems}
           </Box>
           <Container
             maxWidth="sm"
