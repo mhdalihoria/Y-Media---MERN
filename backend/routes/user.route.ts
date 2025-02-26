@@ -16,14 +16,18 @@ user.get(
     try {
       const userId = req.params.userId;
 
+      // Validate userId
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: "Invalid userId" });
+      }
+
       // Find the user by ID
       const user = await User.findById(userId)
         .populate<{ friends: IUser[] }>("friends", "username profileImg")
         .exec();
 
       if (!user) {
-        res.status(404).json({ success: false, message: "User not found" });
-        return;
+        return res.status(404).json({ success: false, message: "User not found" });
       }
 
       // Fetch posts created by the user

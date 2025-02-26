@@ -71,10 +71,10 @@ function App() {
       }
     };
 
-    if (token) {
+    if (token && userId) {
       fetchUser();
     }
-  }, [token]);
+  }, [token, userId]);
 
   useEffect(() => {
     if (status) {
