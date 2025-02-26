@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import mongoose from "mongoose";
 
 declare global {
   namespace Express {
@@ -31,6 +32,18 @@ const authMiddleware = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
+
+    if (!decoded || !decoded.userId) {
+      res.status(401).json({ success: false, message: "Invalid token" });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(decoded.userId)) {
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid userId in token" });
+      return;
+    }
 
     // 3. Get user from token
     const user = await User.findById(decoded.userId).select("-password");

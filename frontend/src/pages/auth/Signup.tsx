@@ -75,7 +75,7 @@ export default function Signup() {
 
       setServerSuccess("Signed up Successfully | Redirecting ...");
 
-      setTimeout(() => navigate("/"), 4000);
+      setTimeout(() => navigate("/login"), 2500);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setServerError(error.response?.data?.message || "Signup failed");

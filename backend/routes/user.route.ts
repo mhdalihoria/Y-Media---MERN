@@ -1,4 +1,4 @@
-import { ObjectId, Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Request, Response, Router } from "express";
 import dotenv from "dotenv";
 import Post from "../models/Post";
@@ -17,9 +17,15 @@ user.get(
     try {
       const userId = req.params.userId;
 
+      // Validate userId
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({ success: false, message: "Invalid userId" });
+        return;
+      }
+
       // Find the user by ID
       const user = await User.findById(userId)
-        .populate<{ followers: IUser[] }>("followers", "username profileImg")
+        .populate<{ following: IUser[] }>("following", "username profileImg")
         .exec();
 
       if (!user) {
@@ -44,7 +50,7 @@ user.get(
           bio: user.bio,
           profileImg: user.profileImg,
           coverImg: user.coverImg,
-          followers: user.followers.map((user) => ({
+          following: user.following.map((user) => ({
             username: user.username,
             profileImg: user.profileImg,
           })),
