@@ -40,7 +40,7 @@ export default function ProfileOther() {
     bio,
     coverImg,
     profileImg,
-    friends,
+    following,
     userPosts,
     likedPosts,
   } = user;
@@ -53,7 +53,7 @@ export default function ProfileOther() {
       bio={bio}
       coverImg={coverImg}
       profileImg={profileImg}
-      friends={friends}
+      following={following}
       userPosts={userPosts}
       likedPosts={likedPosts}
     />

@@ -6,7 +6,6 @@ type User = {
   profileImg: string;
 };
 
-
 export type Post = {
   _id: string;
   content: string;
@@ -21,7 +20,9 @@ export interface UserType {
   bio: string | null;
   profileImg: string | null;
   coverImg: string | null;
-  friends: User[]; // Array of friend IDs
+  following: User[]; // Array of friend IDs
+  followers?: User[]; // Array of friend IDs
+  notifications?: []; // Array of friend IDs
   likedPosts: Post[]; // Array of post IDs
   userPosts: Post[]; // Array of post IDs
 }
@@ -31,9 +32,11 @@ interface UserStore extends UserType {
   setBio: (bio: string) => void;
   setProfileImg: (profileImg: string) => void;
   setCoverImg: (coverImg: string) => void;
-  setFriends: (friends: User[]) => void;
+  setFollowers: (followers: User[]) => void;
+  setFollowing: (following: User[]) => void;
   setLikedPosts: (posts: Post[]) => void;
   setUserPosts: (posts: Post[]) => void;
+  setNotifications: (notifications: []) => void;
   //   addFriend: (friendId: string) => void;
   // likePost: (postId: string) => void;
   clearUser: () => void; // Clear the user state
@@ -45,9 +48,11 @@ const useUserStore = create<UserStore>((set) => ({
   bio: null,
   profileImg: null,
   coverImg: null,
-  friends: [],
+  followers: [],
+  following: [],
   likedPosts: [],
   userPosts: [],
+  notifications: [],
 
   // Setters
   setUsername: (username: string) => set((state) => ({ ...state, username })),
@@ -55,9 +60,16 @@ const useUserStore = create<UserStore>((set) => ({
   setProfileImg: (profileImg: string) =>
     set((state) => ({ ...state, profileImg })),
   setCoverImg: (coverImg: string) => set((state) => ({ ...state, coverImg })),
-  setFriends: (friends: User[]) => set((state) => ({ ...state, friends })),
-  setLikedPosts: (likedPosts: Post[]) => set((state) => ({ ...state, likedPosts })),
-  setUserPosts: (userPosts: Post[]) => set((state) => ({ ...state, userPosts })),
+  setFollowing: (following: User[]) =>
+    set((state) => ({ ...state, following })),
+  setFollowers: (followers: User[]) =>
+    set((state) => ({ ...state, followers })),
+  setLikedPosts: (likedPosts: Post[]) =>
+    set((state) => ({ ...state, likedPosts })),
+  setUserPosts: (userPosts: Post[]) =>
+    set((state) => ({ ...state, userPosts })),
+  setNotifications: (notification: []) =>
+    set((state) => ({ ...state, notification })),
 
   // Friends Management
   //   addFriend: (friendId: string) =>
@@ -82,9 +94,11 @@ const useUserStore = create<UserStore>((set) => ({
       bio: null,
       profileImg: null,
       coverImg: null,
-      friends: [],
+      following: [],
+      followers: [],
       userPosts: [],
       likedPosts: [],
+      notifications: [],
     }),
 }));
 

@@ -84,7 +84,7 @@ export default function RenderProfile({
     bio,
     coverImg,
     profileImg,
-    friends,
+    following,
     userPosts,
     likedPosts,
   } = userProps;
@@ -128,7 +128,7 @@ export default function RenderProfile({
         >
           <Tab label="Posts" />
           <Tab label="Likes" />
-          <Tab label="Friends" />
+          <Tab label="Following" />
         </Tabs>
       </StyledHeaderContainer>
 
@@ -161,8 +161,8 @@ export default function RenderProfile({
           <Empty />
         ))}
       {tabValue === 2 &&
-        (friends.length > 0 ? (
-          friends.map((friend) => <div>{friend.username}</div>)
+        (following.length > 0 ? (
+          following.map((user) => <div>{user.username}</div>)
         ) : (
           // <LoadingFriends />
           <NotFound />

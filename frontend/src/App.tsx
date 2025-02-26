@@ -22,7 +22,8 @@ function App() {
     setBio,
     setCoverImg,
     setProfileImg,
-    setFriends,
+    setFollowers,
+    setFollowing,
     setUserPosts,
     setLikedPosts,
   } = useUserStore();
@@ -54,7 +55,8 @@ function App() {
           bio,
           coverImg,
           profileImg,
-          friends,
+          following,
+          // followers,
           userPosts,
           likedPosts,
         } = data.user;
@@ -63,7 +65,8 @@ function App() {
         setBio(bio);
         setCoverImg(coverImg);
         setProfileImg(profileImg);
-        setFriends(friends);
+        // setFollowers(followers);
+        setFollowing(following);
         setLikedPosts(likedPosts);
         setUserPosts(userPosts);
       } catch (err) {

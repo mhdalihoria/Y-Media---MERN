@@ -9,7 +9,7 @@ export default function ProfileSelf() {
     bio,
     coverImg,
     profileImg,
-    friends,
+    following,
     userPosts,
     likedPosts,
   } = useUserStore();
@@ -24,7 +24,7 @@ export default function ProfileSelf() {
       bio={bio}
       coverImg={coverImg}
       profileImg={profileImg}
-      friends={friends}
+      following={following}
       userPosts={userPosts}
       likedPosts={likedPosts}
     />
