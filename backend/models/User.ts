@@ -9,62 +9,88 @@ export interface IUser extends Document {
   bio: string;
   profileImg: string;
   coverImg: string;
-  friends: Types.ObjectId[]; // Array of user IDs (friends)
-  likedPosts: Types.ObjectId[]; // Array of post IDs (liked by the user)
   comparePassword(candidatePassword: string): Promise<boolean>;
+  likedPosts: Types.ObjectId[]; // Array of post IDs (liked by the user)
+  followers: Types.ObjectId[]; // Array of user IDs who follow this user
+  following: Types.ObjectId[]; // Array of user IDs this user is following
+  notifications: {
+    type: "follow" | "message" | "like"; // Type of notification (e.g., follow)
+    from: Types.ObjectId; // User ID of the sender
+    createdAt: Date; // Timestamp of the notification
+  }[]; // Array of notifications
 }
 
-const UserSchema = new Schema<IUser>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: 3,
-    maxlength: 20,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  bio: {
-    type: String,
-    required: false,
-    default: "", 
-  },
-  profileImg: {
-    type: String,
-    required: false,
-    default: null, 
-  },
-  coverImg: {
-    type: String,
-    required: false,
-    default: null, 
-  },
-  friends: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model
+const UserSchema = new Schema<IUser>(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 3,
+      maxlength: 20,
     },
-  ],
-  likedPosts: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Post", // Reference to the Post model
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
-  ],
-});
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    bio: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    profileImg: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    coverImg: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    followers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User", // Reference to the User model
+      },
+    ],
+    following: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User", // Reference to the User model
+      },
+    ],
+    likedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post", // Reference to the Post model
+      },
+    ],
+    notifications: [
+      {
+        type: {
+          type: String,
+          enum: ["follow", "message", "like"],
+          required: true,
+        },
+        from: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 // Hash password before saving
 UserSchema.pre<IUser>("save", async function (next) {

@@ -1,9 +1,10 @@
-import { Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import { Request, Response, Router } from "express";
 import dotenv from "dotenv";
 import Post from "../models/Post";
 import authMiddleware from "../middleware/authMiddleware";
 import User, { IUser } from "../models/User";
+import { validateObjectId } from "../middleware/validateObjectId";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ user.get(
 
       // Find the user by ID
       const user = await User.findById(userId)
-        .populate<{ friends: IUser[] }>("friends", "username profileImg")
+        .populate<{ followers: IUser[] }>("followers", "username profileImg")
         .exec();
 
       if (!user) {
@@ -43,9 +44,9 @@ user.get(
           bio: user.bio,
           profileImg: user.profileImg,
           coverImg: user.coverImg,
-          friends: user.friends.map((friend) => ({
-            username: friend.username,
-            profileImg: friend.profileImg,
+          followers: user.followers.map((user) => ({
+            username: user.username,
+            profileImg: user.profileImg,
           })),
           userPosts,
           likedPosts: likedPosts,
@@ -89,44 +90,107 @@ user.get(
 );
 
 user.post(
-  "/:userId/add-friend/:friendId",
+  "/:userId/follow/:followedId",
+  validateObjectId,
   authMiddleware,
   async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
-      const friendId = req.params.friendId;
+      const followedId = req.params.followedId;
 
       // Find both users
-      const user = (await User.findById(userId)) as IUser;
-      const friend = (await User.findById(friendId)) as IUser;
+      const user = await User.findById(userId);
+      const followedUser = await User.findById(followedId);
 
-      if (!user || !friend) {
-        res
-          .status(404)
-          .json({ success: false, message: "User or friend not found" });
+      if (!user || !followedUser) {
+        res.status(404).json({ success: false, message: "User not found" });
         return;
       }
 
-      const userObjectId = new Types.ObjectId(user._id as string);
-      const friendObjectId = new Types.ObjectId(friend._id as string);
+      const userObjectId = new Types.ObjectId(user._id);
+      const followedObjectId = new Types.ObjectId(followedUser._id);
 
-      // Check if the friend is already added
-      if (user.friends.includes(friendObjectId)) {
+      // Check if the user is already following the followed user
+      if (user.following.includes(followedObjectId)) {
         res
           .status(400)
-          .json({ success: false, message: "Friend already added" });
+          .json({ success: false, message: "Already following this user" });
         return;
       }
 
-      // Add the friend to the user's friends array
-      user.friends.push(friendObjectId);
-      await user.save();
+      // Add the sender to the receiver's followers
+      followedUser.followers.push(userObjectId);
 
-      // Optionally, add the user to the friend's friends array (for mutual friendship)
-      friend.friends.push(userObjectId);
-      await friend.save();
+      // Add the receiver to the sender's following
+      user.following.push(followedObjectId);
 
-      res.json({ success: true, message: "Friend added successfully" });
+      // Add a notification for the receiver
+      followedUser.notifications.push({
+        type: "follow",
+        from: userObjectId,
+        createdAt: new Date(),
+      });
+
+      // Save both users
+      await Promise.all([user.save(), followedUser.save()]);
+
+      res.json({
+        success: true,
+        message: "Followed successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
+);
+
+user.post(
+  "/:userId/unfollow/:followedId",
+  validateObjectId,
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const followedId = req.params.followedId;
+
+      // Find both users
+      const user = await User.findById(userId);
+      const followedUser = await User.findById(followedId);
+
+      if (!user || !followedUser) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      const userObjectId = new Types.ObjectId(user._id);
+      const followedObjectId = new Types.ObjectId(followedUser._id);
+
+      // Check if the user is following the followed user
+      if (!user.following.includes(followedObjectId)) {
+        res
+          .status(400)
+          .json({ success: false, message: "Not following this user" });
+        return;
+      }
+
+      // Remove the sender from the receiver's followers
+      followedUser.followers = followedUser.followers.filter(
+        (follower) => !follower.equals(userObjectId)
+      );
+
+      // Remove the receiver from the sender's following
+      user.following = user.following.filter(
+        (following) => !following.equals(followedObjectId)
+      );
+
+      // Save both users
+      await Promise.all([user.save(), followedUser.save()]);
+
+      res.json({
+        success: true,
+        message: "Unfollowed successfully",
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: "Server error" });
