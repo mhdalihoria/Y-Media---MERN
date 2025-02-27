@@ -10,11 +10,11 @@ export default function ProfileSelf() {
     coverImg,
     profileImg,
     following,
+    followers,
     userPosts,
     likedPosts,
   } = useUserStore();
 
-  console.log(userPosts);
   return (
     <RenderProfile
       token={token}
@@ -25,6 +25,7 @@ export default function ProfileSelf() {
       coverImg={coverImg}
       profileImg={profileImg}
       following={following}
+      followers={followers}
       userPosts={userPosts}
       likedPosts={likedPosts}
     />

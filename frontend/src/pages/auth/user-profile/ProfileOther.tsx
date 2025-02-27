@@ -9,8 +9,6 @@ export default function ProfileOther() {
   const id = params.id as string;
   const [user, setUser] = useState<UserType>();
 
-  console.log(user);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -41,6 +39,7 @@ export default function ProfileOther() {
     coverImg,
     profileImg,
     following,
+    followers,
     userPosts,
     likedPosts,
   } = user;
@@ -54,6 +53,7 @@ export default function ProfileOther() {
       coverImg={coverImg}
       profileImg={profileImg}
       following={following}
+      followers={followers}
       userPosts={userPosts}
       likedPosts={likedPosts}
     />

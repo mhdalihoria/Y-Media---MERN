@@ -56,19 +56,21 @@ function App() {
           coverImg,
           profileImg,
           following,
-          // followers,
+          followers,
           userPosts,
           likedPosts,
+          // notifications
         } = data.user;
 
         setUsername(username);
         setBio(bio);
         setCoverImg(coverImg);
         setProfileImg(profileImg);
-        // setFollowers(followers);
+        setFollowers(followers);
         setFollowing(following);
         setLikedPosts(likedPosts);
         setUserPosts(userPosts);
+        // setNotifications(notifications)
       } catch (err) {
         console.error(err);
       }

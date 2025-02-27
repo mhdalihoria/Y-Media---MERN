@@ -25,7 +25,13 @@ user.get(
 
       // Find the user by ID
       const user = await User.findById(userId)
-        .populate<{ following: IUser[] }>("following", "username profileImg")
+        .populate<{
+          following: IUser[];
+          followers: IUser[];
+          notifications: { type: string; from: IUser; createdAt: Date }[];
+        }>("following followers", "username profileImg")
+        // }>("following followers notifications", "username profileImg")
+        // .slice("notifications", -10) // last 10 notifications
         .exec();
 
       if (!user) {
@@ -54,6 +60,11 @@ user.get(
             username: user.username,
             profileImg: user.profileImg,
           })),
+          followers: user.followers.map((user) => ({
+            username: user.username,
+            profileImg: user.profileImg,
+          })),
+          // noifications: user.notifications,
           userPosts,
           likedPosts: likedPosts,
         },
