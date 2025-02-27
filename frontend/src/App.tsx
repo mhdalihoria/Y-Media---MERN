@@ -14,6 +14,7 @@ import apiClient from "./api/axiosInstance";
 import EditProfile from "./pages/auth/user-profile/EditProfile";
 import { useAlertStore } from "./stores/alertStore";
 import { Alert, AlertColor } from "@mui/material";
+import socket from "./socket";
 
 function App() {
   const { userId, token, setToken } = useAuthStore();
@@ -91,6 +92,26 @@ function App() {
     }
   }, [status]);
 
+
+  useEffect(() => {
+    if (userId) {
+      // Tell the server which user this socket belongs to
+      socket.emit("join", userId);
+    }
+
+    // Listen for notifications from the server
+    socket.on("notification", (notification) => {
+      console.log("Received notification:", notification);
+      // Here, update your local state or a notification context to display it
+    });
+
+    // Cleanup listener on component unmount
+    return () => {
+      socket.off("notification");
+    };
+  }, [userId]);
+
+  
   return (
     <>
       <Routes>
