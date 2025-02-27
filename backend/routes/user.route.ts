@@ -106,6 +106,29 @@ user.get(
   }
 );
 
+user.get(
+  "/get-notifications",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.id;
+
+      const user = await User.findById(userId)
+        .select("notifications")
+        .populate<{
+          notifications: { type: string; from: IUser; createdAt: Date }[];
+        }>("notifications")
+        .slice("notifications", -10);
+
+      res.json({ success: true, data: user ? user.notifications : [] });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Something went wrong", error });
+    }
+  }
+);
+
 user.post(
   "/:userId/follow/:followedId",
   validateObjectId,
