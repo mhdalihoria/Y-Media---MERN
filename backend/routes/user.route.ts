@@ -57,10 +57,12 @@ user.get(
           profileImg: user.profileImg,
           coverImg: user.coverImg,
           following: user.following.map((user) => ({
+            _id: user.id,
             username: user.username,
             profileImg: user.profileImg,
           })),
           followers: user.followers.map((user) => ({
+            _id: user.id,
             username: user.username,
             profileImg: user.profileImg,
           })),
@@ -98,29 +100,6 @@ user.get(
       }));
 
       res.json(allPostsSimpleUsernames);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Something went wrong", error });
-    }
-  }
-);
-
-user.get(
-  "/get-notifications",
-  authMiddleware,
-  async (req: Request, res: Response) => {
-    try {
-      const userId = req.user?.id;
-
-      const user = await User.findById(userId)
-        .select("notifications")
-        .populate<{
-          notifications: { type: string; from: IUser; createdAt: Date }[];
-        }>("notifications")
-        .slice("notifications", -10);
-
-      res.json({ success: true, data: user ? user.notifications : [] });
     } catch (error) {
       res
         .status(500)
