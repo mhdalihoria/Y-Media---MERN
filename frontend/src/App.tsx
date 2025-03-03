@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router";
 import HomeLayout from "./layouts/HomeLayout";
@@ -15,8 +15,12 @@ import EditProfile from "./pages/auth/user-profile/EditProfile";
 import { useAlertStore } from "./stores/alertStore";
 import { Alert, AlertColor } from "@mui/material";
 import socket from "./socket";
+import Notifications from "./pages/Notifications";
+import { io } from "socket.io-client";
 
 function App() {
+  const socket = io(import.meta.env.VITE_BACKEND_URL);
+  // ----------------------------------
   const { userId, token, setToken } = useAuthStore();
   const {
     setUsername,
@@ -27,9 +31,14 @@ function App() {
     setFollowing,
     setUserPosts,
     setLikedPosts,
+    setNotifications,
+    notifications,
   } = useUserStore();
   const { status, message, setAlert } = useAlertStore();
+  // ----------------------------------
+  console.log(notifications);
 
+  // Token: Access Token onLoad
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     if (token) {
@@ -37,6 +46,7 @@ function App() {
     }
   }, [setToken]);
 
+  // User: Fetch User Data/Profile
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -60,9 +70,9 @@ function App() {
           followers,
           userPosts,
           likedPosts,
-          // notifications
+          notifications,
         } = data.user;
-
+        console.log(notifications, "hi");
         setUsername(username);
         setBio(bio);
         setCoverImg(coverImg);
@@ -71,7 +81,7 @@ function App() {
         setFollowing(following);
         setLikedPosts(likedPosts);
         setUserPosts(userPosts);
-        // setNotifications(notifications)
+        setNotifications(notifications);
       } catch (err) {
         console.error(err);
       }
@@ -82,6 +92,7 @@ function App() {
     }
   }, [token, userId]);
 
+  // Alert: Clear After Timeout
   useEffect(() => {
     if (status) {
       const timer = setTimeout(() => {
@@ -92,7 +103,7 @@ function App() {
     }
   }, [status]);
 
-
+  // Socket IO: User's socket + notifications
   useEffect(() => {
     if (userId) {
       // Tell the server which user this socket belongs to
@@ -102,7 +113,7 @@ function App() {
     // Listen for notifications from the server
     socket.on("notification", (notification) => {
       console.log("Received notification:", notification);
-      // Here, update your local state or a notification context to display it
+      setAlert("info", `A new ${notification.type}`);
     });
 
     // Cleanup listener on component unmount
@@ -111,7 +122,6 @@ function App() {
     };
   }, [userId]);
 
-  
   return (
     <>
       <Routes>
@@ -120,6 +130,7 @@ function App() {
           <Route path="/profile" element={<ProfileSelf />} />
           <Route path="/profile/:id" element={<ProfileOther />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Route>
 
         <Route element={<AuthLayout />}>
