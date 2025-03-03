@@ -68,8 +68,8 @@ const useUserStore = create<UserStore>((set) => ({
     set((state) => ({ ...state, likedPosts })),
   setUserPosts: (userPosts: Post[]) =>
     set((state) => ({ ...state, userPosts })),
-  setNotifications: (notification: []) =>
-    set((state) => ({ ...state, notification })),
+  setNotifications: (notifications: []) =>
+    set((state) => ({ ...state, notifications })),
 
   // Friends Management
   //   addFriend: (friendId: string) =>

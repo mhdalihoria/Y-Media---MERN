@@ -66,7 +66,7 @@ user.get(
             username: user.username,
             profileImg: user.profileImg,
           })),
-          // noifications: user.notifications,
+          notifications: user.notifications,
           userPosts,
           likedPosts: likedPosts,
         },
