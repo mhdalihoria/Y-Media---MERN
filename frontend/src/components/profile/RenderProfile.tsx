@@ -94,7 +94,7 @@ export default function RenderProfile({
   } = userProps;
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
-  const { userId: viewingUserId, token:viewingUserToken } = useAuthStore();
+  const { userId: viewingUserId, token: viewingUserToken } = useAuthStore();
   const { following: viewingUserFollowing, setFollowing } = useUserStore();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -123,10 +123,25 @@ export default function RenderProfile({
             },
           }
         );
-        if (response.status !== 200) {
+
+        const notificationResponse = await axios.post(
+          `http://localhost:3000/notifications/add-notification`,
+          {
+            toUserId: userId,
+            fromUserId: viewingUserId,
+            type: "follow",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${viewingUserToken}`,
+            },
+          }
+        );
+
+        if (response.status !== 200 || notificationResponse.status !== 200) {
           throw new Error("Somethiing Went Wrong Following User");
         }
-        console.log("following", response.data);
+        // console.log("following", response.data, notificationResponse.data);
         return;
       };
 
@@ -157,7 +172,6 @@ export default function RenderProfile({
           viewingUserFollowing.filter((user) => user._id !== userId)
         );
       } else {
-
         await followUser();
         // Add the user to the following list
         setFollowing([
