@@ -1,9 +1,7 @@
 import useUserStore from "../stores/userStore";
 
-
 export default function Notifications() {
-  const {notifications} = useUserStore()
- console.log(notifications, "here")
+  const { notifications } = useUserStore();
 
   return (
     <div>

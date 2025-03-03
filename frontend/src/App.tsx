@@ -32,11 +32,9 @@ function App() {
     setUserPosts,
     setLikedPosts,
     setNotifications,
-    notifications,
   } = useUserStore();
   const { status, message, setAlert } = useAlertStore();
   // ----------------------------------
-  console.log(notifications);
 
   // Token: Access Token onLoad
   useEffect(() => {
@@ -72,7 +70,7 @@ function App() {
           likedPosts,
           notifications,
         } = data.user;
-        console.log(notifications, "hi");
+
         setUsername(username);
         setBio(bio);
         setCoverImg(coverImg);
