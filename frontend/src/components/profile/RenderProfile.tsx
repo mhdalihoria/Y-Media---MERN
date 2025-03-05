@@ -124,24 +124,24 @@ export default function RenderProfile({
           }
         );
 
-        const notificationResponse = await axios.post(
-          `http://localhost:3000/notifications/add-notification`,
-          {
-            toUserId: userId,
-            fromUserId: viewingUserId,
-            type: "follow",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${viewingUserToken}`,
-            },
-          }
-        );
+        // const notificationResponse = await axios.post(
+        //   `${import.meta.env.VITE_BACKEND_URL}/notifications/add-notification`,
+        //   {
+        //     toUserId: userId,
+        //     fromUserId: viewingUserId,
+        //     type: "follow",
+        //   },
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${viewingUserToken}`,
+        //     },
+        //   }
+        // );
 
-        if (response.status !== 200 || notificationResponse.status !== 200) {
+        // if (response.status !== 200 || notificationResponse.status !== 200) {
+        if (response.status !== 200) {
           throw new Error("Somethiing Went Wrong Following User");
         }
-        // console.log("following", response.data, notificationResponse.data);
         return;
       };
 
@@ -157,7 +157,24 @@ export default function RenderProfile({
             },
           }
         );
-        if (response.status !== 200) {
+
+        const notificationResponse = await axios.post(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/notifications/remove-notification`,
+          {
+            toUserId: userId,
+            fromUserId: viewingUserId,
+            type: "follow",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${viewingUserToken}`,
+            },
+          }
+        );
+
+        if (response.status !== 200 || notificationResponse.status !== 200) {
           throw new Error("Somethiing Went Wrong Unfollowing User");
         }
         console.log("unfollowing", response.data);

@@ -35,7 +35,6 @@ notification.get(
   }
 );
 
-//TODO: REMOVE NOTIFICATION IF UNFOLLOWED
 notification.post(
   "/add-notification",
   authMiddleware,
@@ -71,6 +70,40 @@ notification.post(
         success: true,
         notification: newNotification,
         message: "Notification Added Successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+notification.post(
+  "/remove-notification",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    // Expecting: { toUserId, type, fromUserId }
+    const { toUserId, type, fromUserId } = req.body;
+
+    try {
+      const user = await User.findById(toUserId);
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+
+      // Filter out the notification that matches the undone action
+      user.notifications = user.notifications.filter((notif: any) => {
+        !(
+          notif.type === type && notif.from.toString() === fromUserId.toString()
+        );
+        return;
+      });
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Notification removed successfully",
       });
     } catch (error) {
       console.error(error);
