@@ -22,7 +22,7 @@ export interface UserType {
   coverImg: string | null;
   following: User[]; // Array of friend IDs
   followers?: User[]; // Array of friend IDs
-  notifications?: []; // Array of friend IDs
+  notifications: []; // Array of friend IDs
   likedPosts: Post[]; // Array of post IDs
   userPosts: Post[]; // Array of post IDs
 }
