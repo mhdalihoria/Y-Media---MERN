@@ -29,9 +29,8 @@ user.get(
           following: IUser[];
           followers: IUser[];
           notifications: { type: string; from: IUser; createdAt: Date }[];
-        }>("following followers", "username profileImg")
-        // }>("following followers notifications", "username profileImg")
-        // .slice("notifications", -10) // last 10 notifications
+        }>("following followers notifications.from", "username profileImg")
+        .slice("notifications", -10) // last 10 notifications
         .exec();
 
       if (!user) {
@@ -126,7 +125,7 @@ user.post(
         return;
       }
 
-      const userObjectId = new Types.ObjectId(user._id);
+      const userObjectId = new Types.ObjectId(user._id!);
       const followedObjectId = new Types.ObjectId(followedUser._id);
 
       // Check if the user is already following the followed user

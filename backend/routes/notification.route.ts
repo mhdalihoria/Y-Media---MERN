@@ -15,10 +15,18 @@ notification.get(
         .select("notifications")
         .populate<{
           notifications: { type: string; from: IUser; createdAt: Date }[];
-        }>("notifications")
+        }>(
+          "notifications.from", // Populate the 'from' field inside notifications
+          "username profileImg" // Only retrieve these fields
+        )
         .slice("notifications", -10);
 
-      res.json({ success: true, data: user ? user.notifications : [] });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      res.json({ success: true, data: user.notifications });
     } catch (error) {
       res
         .status(500)
@@ -64,7 +72,6 @@ notification.post(
         notification: newNotification,
         message: "Notification Added Successfully",
       });
-      
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
