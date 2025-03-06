@@ -1,16 +1,13 @@
+import { useState } from "react";
 import useUserStore, { Post } from "../../../stores/userStore";
 import DefaultUser from "../../../assets/default-user.jpg";
-import {
-  Box,
-  IconButton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, styled, Typography } from "@mui/material";
 import { NavLink, useLocation } from "react-router";
 import { FaTrash } from "react-icons/fa6";
 import axios from "axios";
 import { useAuthStore } from "../../../stores/authStore";
 import { useAlertStore } from "../../../stores/alertStore";
+import { CiHeart } from "react-icons/ci";
 
 const PostContainerStyled = styled(Box)(({ theme }) => ({
   marginTop: "1.5rem",
@@ -46,6 +43,27 @@ const PostContainerStyled = styled(Box)(({ theme }) => ({
   },
 }));
 
+const LikeBtnStyled = styled(IconButton)(({ theme }) => ({
+  fontSize: "1.275rem",
+
+  "& .btn-container": {
+    display: "flex",
+    justifyContent: "baseline",
+    alignItems: "center",
+    gap: ".3em",
+    padding: ".5rem",
+    borderRadius: "20px",
+    fontWeight: "bold",
+  },
+
+  "& .liked": {
+    background: theme.palette.primary.main,
+  },
+  "& .like-count": {
+    fontSize: ".875rem",
+  },
+}));
+
 export default function RenderPost({
   post,
   userId,
@@ -62,8 +80,12 @@ export default function RenderPost({
   // -------------------------------------------
   const { token } = useAuthStore();
   const { userPosts, setUserPosts } = useUserStore();
-  const { setAlert, message, status } = useAlertStore();
-  const postId = post._id;
+  const { setAlert } = useAlertStore();
+  const postId = post.postId;
+  const authorId = post.user._id;
+  // -------------------------------------------
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   // -------------------------------------------
   const date = new Date(post.createdAt);
   // Format as a readable date
@@ -101,6 +123,39 @@ export default function RenderPost({
     } catch (err) {
       console.error(err);
       setAlert("error", (err as Error).message);
+    }
+  };
+
+  const likePost = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/like-post`,
+        {
+          postId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        setAlert("error", "Could not Like the Post, Try Again Later");
+        throw new Error("Something went Wrong");
+      }
+
+      const { likesCount } = response.data;
+
+      if (!liked) {
+        setLiked((prevLiked) => !prevLiked);
+        setLikeCount(likesCount);
+      } else {
+        setLiked(false);
+        setLikeCount((prevLiked) => prevLiked - 1);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -176,6 +231,16 @@ export default function RenderPost({
             marginTop: "-1rem",
           }}
         />
+      )}
+      {authorId !== userId && (
+        <div style={{ marginLeft: ".5rem" }}>
+          <LikeBtnStyled onClick={() => likePost()}>
+            <div className={`btn-container ${liked ? "liked" : ""}`}>
+              <CiHeart />{" "}
+              {!!likeCount && <span className="like-count">{likeCount}</span>}
+            </div>
+          </LikeBtnStyled>
+        </div>
       )}
     </PostContainerStyled>
   );

@@ -18,6 +18,7 @@ const PostSchema = new Schema({
     ref: "User", // Reference to the User model
     required: true,
   },
+  likes: [{ type: Schema.Types.ObjectId, ref: "User", required: false }],
 });
 
 export default model("Post", PostSchema);

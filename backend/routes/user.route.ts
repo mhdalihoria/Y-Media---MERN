@@ -281,6 +281,79 @@ user.delete(
   }
 );
 
+user.post("/like-post", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    // Use the authenticated user's ID from req.user (set by authMiddleware)
+    const likingUserId = req.user?.id;
+    const { postId } = req.body;
+
+    if (!likingUserId || !postId) {
+      res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
+      return;
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      res.status(404).json({ success: false, message: "Post not found" });
+      return;
+    }
+
+    // has the user already liked the post?
+    const likeIndex = post.likes.findIndex(
+      (like) => like.toString() === likingUserId
+    );
+    let action = "";
+    if (likeIndex !== -1) {
+      // If already liked, toggle off
+      post.likes.splice(likeIndex, 1);
+      action = "unliked";
+    } else {
+      // Add the like
+      post.likes.push(likingUserId);
+      action = "liked";
+    }
+
+    await post.save();
+
+    // If the post was newly liked and the owner is not the liker, send a notification.
+    if (action === "liked" && post.user.toString() !== likingUserId) {
+      // Prepare notification data
+      const newNotification = {
+        type: "like",
+        from: likingUserId,
+        createdAt: new Date(),
+      };
+
+      // Update the post owner's notifications array
+      const postOwner = await User.findById(post.user);
+      if (postOwner) {
+        postOwner.notifications.push(newNotification);
+        await postOwner.save();
+
+        // Get the Socket.IO instance from the Express app (attached in your server setup)
+        const io = req.app.get("io");
+        // Emit the notification to the room corresponding to the post owner's ID
+        io.to(post.user.toString()).emit("notification", newNotification);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Post ${action} successfully`,
+      likesCount: post.likes.length,
+    });
+    return;
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
+    return;
+  }
+});
+
 user.patch(
   "/update-profile",
   authMiddleware,
