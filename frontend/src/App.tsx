@@ -18,6 +18,7 @@ import socket from "./socket";
 import Notifications from "./pages/Notifications";
 import { io } from "socket.io-client";
 import Search from "./pages/Search";
+import RequiresAuth from "./components/RequiresAuth";
 
 function App() {
   const socket = io(import.meta.env.VITE_BACKEND_URL);
@@ -31,7 +32,6 @@ function App() {
     setFollowers,
     setFollowing,
     setUserPosts,
-    setLikedPosts,
     setNotifications,
   } = useUserStore();
   const { status, message, setAlert } = useAlertStore();
@@ -122,31 +122,21 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<HomeLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="/profile" element={<ProfileSelf />} />
-          <Route path="/profile/:id" element={<ProfileOther />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/search" element={<Search />} />
+        <Route element={<RequiresAuth />}>
+          <Route path="/" element={<HomeLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="/profile" element={<ProfileSelf />} />
+            <Route path="/profile/:id" element={<ProfileOther />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/search" element={<Search />} />
+          </Route>
         </Route>
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Route>
-
-        {/* 
-    <Route element={<AuthLayout />}> //layout component => routes with no "path" are for layouts
-      <Route path="login" element={<Login />} />
-      <Route path="register" element={<Register />} />
-    </Route>
-
-    <Route path="concerts">
-      <Route index element={<ConcertsHome />} />
-      <Route path=":city" element={<City />} />
-      <Route path="trending" element={<Trending />} />
-    </Route> */}
       </Routes>
       {!!status && (
         <Alert
