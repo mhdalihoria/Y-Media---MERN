@@ -62,7 +62,6 @@ export default function Login() {
         throw new Error("Something Went Wrong...");
       }
 
-      console.log(responseData.token, responseData.userId);
       setToken(responseData.token);
 
       setUser(responseData.userId);
@@ -70,7 +69,6 @@ export default function Login() {
       setServerSuccess("Logged in Successfully | Redirecting ...");
 
       setTimeout(() => navigate("/"), 4000);
-      console.log("Login successful:", response.data);
       // Redirect or show success message
     } catch (error) {
       if (axios.isAxiosError(error)) {

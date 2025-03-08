@@ -87,7 +87,6 @@ export default function Post({
         }
       );
 
-      console.log(response.status, response.data);
       alert("Post created successfully!");
     } catch (error) {
       console.error("Post creation failed:", error);

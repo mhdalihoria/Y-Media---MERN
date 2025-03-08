@@ -16,7 +16,7 @@ export default function HomePage() {
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  console.log(posts);
+
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
