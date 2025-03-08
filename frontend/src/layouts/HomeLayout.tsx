@@ -53,7 +53,7 @@ export default function HomeLayout() {
 
   const sideMenu = [
     { name: "Home", icon: <GoHome />, link: "/" },
-    { name: "Search", icon: <IoIosSearch />, link: "/" },
+    { name: "Search", icon: <IoIosSearch />, link: "/search" },
     { name: "Chat", icon: <IoChatbubbleEllipsesOutline />, link: "/" },
     { name: "Profile", icon: <FiUser />, link: "/profile" },
   ];

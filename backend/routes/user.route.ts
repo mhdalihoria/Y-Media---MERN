@@ -481,4 +481,29 @@ user.patch(
   }
 );
 
+user.get("/search", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+    if (!q || typeof q !== "string") {
+      res
+        .status(400)
+        .json({ success: false, message: "Query parameter 'q' is required." });
+      return;
+    }
+
+    // Perform a text search on the posts collection
+    const results = await Post.find({ $text: { $search: q } }).populate(
+      "user",
+      "username profileImg"
+    );
+
+    res.status(200).json({ success: true, results });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
+  }
+});
+
 export default user;

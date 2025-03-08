@@ -17,6 +17,7 @@ import { Alert, AlertColor } from "@mui/material";
 import socket from "./socket";
 import Notifications from "./pages/Notifications";
 import { io } from "socket.io-client";
+import Search from "./pages/Search";
 
 function App() {
   const socket = io(import.meta.env.VITE_BACKEND_URL);
@@ -127,6 +128,7 @@ function App() {
           <Route path="/profile/:id" element={<ProfileOther />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/search" element={<Search />} />
         </Route>
 
         <Route element={<AuthLayout />}>

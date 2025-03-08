@@ -21,4 +21,6 @@ const PostSchema = new Schema({
   likes: [{ type: Schema.Types.ObjectId, ref: "User", required: false }],
 });
 
+PostSchema.index({ content: "text" });
+
 export default model("Post", PostSchema);
