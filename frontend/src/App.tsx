@@ -67,7 +67,6 @@ function App() {
           following,
           followers,
           userPosts,
-          likedPosts,
           notifications,
         } = data.user;
 
@@ -77,7 +76,6 @@ function App() {
         setProfileImg(profileImg);
         setFollowers(followers);
         setFollowing(following);
-        setLikedPosts(likedPosts);
         setUserPosts(userPosts);
         setNotifications(notifications);
       } catch (err) {

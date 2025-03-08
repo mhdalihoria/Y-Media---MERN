@@ -69,11 +69,13 @@ export default function RenderPost({
   userId,
   idx,
   canDelete,
+  isOwnProfile,
 }: {
   post: Post;
   userId: string | null;
   idx: string;
   canDelete?: boolean;
+  isOwnProfile?: boolean;
 }) {
   const { pathname } = useLocation();
   const isOnProfilePage = pathname === "/profile";
@@ -232,7 +234,7 @@ export default function RenderPost({
           }}
         />
       )}
-      {authorId !== userId && (
+      {authorId !== userId && isOwnProfile === false && (
         <div style={{ marginLeft: ".5rem" }}>
           <LikeBtnStyled onClick={() => likePost()}>
             <div className={`btn-container ${liked ? "liked" : ""}`}>

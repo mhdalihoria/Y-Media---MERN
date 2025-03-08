@@ -60,6 +60,7 @@ export default function HomePage() {
             userId={userId}
             idx={idx.toString()}
             canDelete={false}
+            isOwnProfile={post.user._id === userId}
           />
         ))
       ) : (
