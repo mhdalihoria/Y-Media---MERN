@@ -283,7 +283,7 @@ user.delete(
 
 user.post("/like-post", authMiddleware, async (req: Request, res: Response) => {
   try {
-    // Use the authenticated user's ID from req.user (set by authMiddleware)
+    // Get the authenticated user's ID
     const likingUserId = req.user?.id;
     const { postId } = req.body;
 
@@ -300,26 +300,42 @@ user.post("/like-post", authMiddleware, async (req: Request, res: Response) => {
       return;
     }
 
-    // has the user already liked the post?
+    // Toggle like on the post
     const likeIndex = post.likes.findIndex(
       (like) => like.toString() === likingUserId
     );
     let action = "";
     if (likeIndex !== -1) {
-      // If already liked, toggle off
+      // Already liked; remove the like (toggle off)
       post.likes.splice(likeIndex, 1);
       action = "unliked";
     } else {
-      // Add the like
+      // Add the like (toggle on)
       post.likes.push(likingUserId);
       action = "liked";
     }
 
     await post.save();
 
+    // Update the user's likedPosts field accordingly
+    const likingUser = await User.findById(likingUserId);
+    if (likingUser) {
+      if (action === "liked") {
+        // Add postId if it's not already present
+        if (!likingUser.likedPosts.some((id) => id.toString() === postId)) {
+          likingUser.likedPosts.push(postId);
+        }
+      } else {
+        // Remove postId from likedPosts if present
+        likingUser.likedPosts = likingUser.likedPosts.filter(
+          (id) => id.toString() !== postId
+        );
+      }
+      await likingUser.save();
+    }
+
     // If the post was newly liked and the owner is not the liker, send a notification.
     if (action === "liked" && post.user.toString() !== likingUserId) {
-      // Prepare notification data
       const newNotification = {
         type: "like",
         from: likingUserId,
@@ -332,9 +348,8 @@ user.post("/like-post", authMiddleware, async (req: Request, res: Response) => {
         postOwner.notifications.push(newNotification);
         await postOwner.save();
 
-        // Get the Socket.IO instance from the Express app (attached in your server setup)
+        // Get the Socket.IO instance and emit the notification
         const io = req.app.get("io");
-        // Emit the notification to the room corresponding to the post owner's ID
         io.to(post.user.toString()).emit("notification", newNotification);
       }
     }
@@ -344,15 +359,48 @@ user.post("/like-post", authMiddleware, async (req: Request, res: Response) => {
       message: `Post ${action} successfully`,
       likesCount: post.likes.length,
     });
-    return;
   } catch (error) {
     console.error(error);
     res
       .status(500)
       .json({ success: false, message: "Internal server error", error });
-    return;
   }
 });
+
+user.get(
+  "/get-liked-posts",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      // Get the authenticated user's ID (set by authMiddleware)
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(400).json({ success: false, message: "Missing user id" });
+        return;
+      }
+
+      // Fetch the user document with the likedPosts field
+      const user = await User.findById(userId).select("likedPosts");
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      // Now, query for posts whose _id is in the likedPosts array
+      const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
+        .populate("user", "username profileImg") // Optional: populate post owner details
+        .exec();
+
+      res.status(200).json({ success: true, likedPosts });
+      return;
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error", error });
+    }
+  }
+);
 
 user.patch(
   "/update-profile",
