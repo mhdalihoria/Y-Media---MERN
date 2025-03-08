@@ -83,7 +83,7 @@ export default function RenderPost({
   const { token } = useAuthStore();
   const { userPosts, setUserPosts } = useUserStore();
   const { setAlert } = useAlertStore();
-  const postId = post.postId;
+  const postId = post._id;
   const authorId = post.user._id;
   // -------------------------------------------
   const [liked, setLiked] = useState(false);
@@ -110,7 +110,7 @@ export default function RenderPost({
             Authorization: `Bearer ${token}`,
           },
           data: {
-            postId,
+            postId: post._id,
           },
         }
       );

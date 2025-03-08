@@ -87,7 +87,7 @@ user.get(
         "username profileImg id"
       );
       const allPostsSimpleUsernames = allPosts.map((post) => ({
-        postId: post._id,
+        _id: post._id,
         content: post.content,
         img: post.img,
         createdAt: post.createdAt,
