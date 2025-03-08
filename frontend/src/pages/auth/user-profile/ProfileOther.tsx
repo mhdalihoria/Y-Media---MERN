@@ -42,6 +42,7 @@ export default function ProfileOther() {
     followers,
     userPosts,
     likedPosts,
+    notifications,
   } = user;
 
   return (
@@ -56,6 +57,7 @@ export default function ProfileOther() {
       followers={followers}
       userPosts={userPosts}
       likedPosts={likedPosts}
+      notifications={notifications}
     />
   );
 }

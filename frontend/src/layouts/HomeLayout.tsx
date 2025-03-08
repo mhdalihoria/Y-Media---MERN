@@ -10,7 +10,7 @@ import { Outlet, useNavigate } from "react-router";
 import { GoHome } from "react-icons/go";
 import { FiUser } from "react-icons/fi";
 import { IoIosSearch } from "react-icons/io";
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import { FaRegBell } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
 
 const StyledParentBox = styled(Box)(({ theme }) => ({
@@ -54,7 +54,7 @@ export default function HomeLayout() {
   const sideMenu = [
     { name: "Home", icon: <GoHome />, link: "/" },
     { name: "Search", icon: <IoIosSearch />, link: "/search" },
-    { name: "Chat", icon: <IoChatbubbleEllipsesOutline />, link: "/" },
+    { name: "Notifications", icon: <FaRegBell />, link: "/notifications" },
     { name: "Profile", icon: <FiUser />, link: "/profile" },
   ];
 
@@ -98,7 +98,7 @@ export default function HomeLayout() {
               <FaCirclePlus />
             </IconButton>
             <IconButton>
-              <IoChatbubbleEllipsesOutline />
+              <FaRegBell />
             </IconButton>
             <IconButton onClick={() => navigate("/profile")}>
               <FiUser />
