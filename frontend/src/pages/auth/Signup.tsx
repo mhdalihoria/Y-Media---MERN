@@ -8,6 +8,7 @@ import axios from "axios";
 import { Box } from "@mui/material";
 import { useAuthStore } from "../../stores/authStore";
 import { useNavigate } from "react-router";
+import { FaInfoCircle } from "react-icons/fa";
 
 const signupSchema = z
   .object({
@@ -130,6 +131,22 @@ export default function Signup() {
         label="username"
         {...register("username")}
         disabled={isSubmitting}
+        helperText={
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontSize: ".5rem",
+              gap: "5px",
+              marginLeft: "-12px",
+            }}
+          >
+            <FaInfoCircle style={{ fill: "#c0c0c0" }} />{" "}
+            <span style={{ color: "#c0c0c0" }}>
+              Username is Permananet. Choose Wisely
+            </span>
+          </div>
+        }
       />
       {errors.username && (
         <span style={errorMsg}>{errors.username.message}</span>
