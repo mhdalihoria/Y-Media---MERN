@@ -227,10 +227,10 @@ export default function RenderPost({
           src={post.img}
           style={{
             objectFit: "fill",
-            width: "100%",
+            width: "94%",
             height: "300px",
-            marginBottom: "2rem",
-            marginTop: "-1rem",
+            margin: "1rem auto 2rem",
+            borderRadius: "10px"
           }}
         />
       )}
