@@ -4,6 +4,7 @@ import axios from "axios";
 import { CButton } from "./custom/form/CButton";
 import { BsCardImage } from "react-icons/bs";
 import { Box, IconButton } from "@mui/material";
+import { useNavigate } from "react-router";
 
 export default function Post({
   userId,
@@ -12,6 +13,8 @@ export default function Post({
   userId: string | null;
   token: string | null;
 }) {
+  const navigate = useNavigate();
+  // ---------------------------------------------
   const [editor, setEditor] = useState(""); // Rich text content
   const [image, setImage] = useState<File | null>(null); // Uploaded image file
   const [uploading, setUploading] = useState(false); // Uploading state
@@ -88,6 +91,7 @@ export default function Post({
       );
 
       alert("Post created successfully!");
+      navigate(`/`);
     } catch (error) {
       console.error("Post creation failed:", error);
       alert("Failed to create post. Please try again.");
