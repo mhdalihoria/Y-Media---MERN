@@ -81,13 +81,14 @@ export default function RenderPost({
   const isOnProfilePage = pathname === "/profile";
   // -------------------------------------------
   const { token } = useAuthStore();
-  const { userPosts, setUserPosts } = useUserStore();
+  const { userPosts, setUserPosts, likedPosts, setLikedPosts } = useUserStore();
   const { setAlert } = useAlertStore();
   const postId = post._id;
   const authorId = post.user._id;
   // -------------------------------------------
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  console.log(likedPosts);
   // -------------------------------------------
   const date = new Date(post.createdAt);
   // Format as a readable date
@@ -230,7 +231,7 @@ export default function RenderPost({
             width: "94%",
             height: "300px",
             margin: "1rem auto 2rem",
-            borderRadius: "10px"
+            borderRadius: "10px",
           }}
         />
       )}

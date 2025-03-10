@@ -33,6 +33,7 @@ function App() {
     setFollowing,
     setUserPosts,
     setNotifications,
+    setLikedPosts,
   } = useUserStore();
   const { status, message, setAlert } = useAlertStore();
   // ----------------------------------
@@ -69,6 +70,7 @@ function App() {
           followers,
           userPosts,
           notifications,
+          likedPosts,
         } = data.user;
 
         setUsername(username);
@@ -79,6 +81,7 @@ function App() {
         setFollowing(following);
         setUserPosts(userPosts);
         setNotifications(notifications);
+        setLikedPosts(likedPosts);
       } catch (err) {
         console.error(err);
       }

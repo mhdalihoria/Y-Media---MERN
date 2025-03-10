@@ -3,6 +3,7 @@ import { useAuthStore } from "../stores/authStore";
 import RenderPost from "./auth/user-profile/RenderPost";
 import apiClient from "../api/axiosInstance";
 import Post from "../components/Post";
+import useUserStore from "../stores/userStore";
 
 type Post = {
   _id: string;
@@ -14,7 +15,9 @@ type Post = {
 
 export default function HomePage() {
   const { userId, token } = useAuthStore();
-
+  const { likedPosts } = useUserStore();
+  console.log(likedPosts);
+  // -------------------------------------------
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -52,7 +55,7 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{paddingTop: "1.5rem"}}>
+    <div style={{ paddingTop: "1.5rem" }}>
       <Post token={token} userId={userId} />
       {posts.length > 0 ? (
         posts.map((post, idx) => (
