@@ -16,6 +16,7 @@ import { useAuthStore } from "../../stores/authStore";
 import axios from "axios";
 import defaultProfileImg from "../../assets/default-user.jpg";
 import apiClient from "../../api/axiosInstance";
+import { MdLogout } from "react-icons/md";
 
 const StyledHeaderContainer = styled(Box)(({ theme }) => ({
   marginBottom: "2rem",
@@ -113,6 +114,7 @@ export default function RenderProfile({
     setFollowing,
     setLikedPosts,
     likedPosts,
+    clearUser,
   } = useUserStore();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -219,6 +221,12 @@ export default function RenderProfile({
     }
   };
 
+  const handleLogout = () => {
+    clearUser();
+    localStorage.removeItem("auth");
+    navigate("/login");
+  };
+
   useEffect(() => {
     const fetchLikedPosts = async () => {
       setLoadingPosts(true);
@@ -255,13 +263,22 @@ export default function RenderProfile({
         <div className="profile-img-container">
           <img src={profileImg || DefaultUser} className="profile-img" />
           {isOwnProfile && (
-            <IconButton
-              className="edit-profile"
-              size="small"
-              onClick={() => navigate("/edit-profile")}
-            >
-              <FiEdit />
-            </IconButton>
+            <div>
+              <IconButton
+                className="edit-profile"
+                size="small"
+                onClick={() => navigate("/edit-profile")}
+              >
+                <FiEdit />
+              </IconButton>
+              <IconButton
+                className="edit-profile"
+                size="small"
+                onClick={() => handleLogout()}
+              >
+                <MdLogout style={{ fill: "rgb(241, 71, 65) " }} />
+              </IconButton>
+            </div>
           )}
         </div>
         <div className="text-container">
