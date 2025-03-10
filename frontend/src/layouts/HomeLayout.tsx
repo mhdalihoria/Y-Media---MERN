@@ -12,6 +12,8 @@ import { FiUser } from "react-icons/fi";
 import { IoIosSearch } from "react-icons/io";
 import { FaRegBell } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
+import Logo from "../assets/dark-logo.svg";
+import useUserStore from "../stores/userStore";
 
 const StyledParentBox = styled(Box)(({ theme }) => ({
   height: "100vh",
@@ -43,6 +45,7 @@ const StyledToolbar = styled(Box)(({ theme }) => ({
 
 export default function HomeLayout() {
   const navigate = useNavigate();
+  const { profileImg } = useUserStore();
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   ); // Mobile devices
@@ -55,7 +58,6 @@ export default function HomeLayout() {
     { name: "Home", icon: <GoHome />, link: "/" },
     { name: "Search", icon: <IoIosSearch />, link: "/search" },
     { name: "Notifications", icon: <FaRegBell />, link: "/notifications" },
-    { name: "Profile", icon: <FiUser />, link: "/profile" },
   ];
 
   const sideMenuItems = sideMenu.map((item) => (
@@ -63,7 +65,7 @@ export default function HomeLayout() {
       key={item.name}
       style={{
         display: "flex",
-        gap: "1rem",
+        gap: ".5rem",
         alignItems: "center",
         fontSize: "calc(1rem + .7vw)",
         marginBottom: "1.2em",
@@ -72,7 +74,10 @@ export default function HomeLayout() {
       }}
       onClick={() => navigate(item.link)}
     >
-      {item.icon} <p>{item.name}</p>
+      {item.icon}
+      <p style={{ fontFamily: "Inter", fontSize: "calc(1rem + .3vw)" }}>
+        {item.name}
+      </p>
     </div>
   ));
 
@@ -81,9 +86,10 @@ export default function HomeLayout() {
       {isMobile && (
         <Container
           sx={{
-            padding: 0,
+            padding: "1rem",
             background: (theme) => theme.palette.background.default,
             color: (theme) => theme.palette.text.primary,
+            paddingBottom: "6rem",
           }}
         >
           <Outlet />
@@ -91,17 +97,26 @@ export default function HomeLayout() {
             <IconButton onClick={() => navigate("/")}>
               <GoHome />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => navigate("/search")}>
               <IoIosSearch />
             </IconButton>
             <IconButton className="middle-icon" size="medium">
               <FaCirclePlus />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => navigate("/notifications")}>
               <FaRegBell />
             </IconButton>
             <IconButton onClick={() => navigate("/profile")}>
-              <FiUser />
+              {profileImg ? (
+                <img
+                  src={profileImg}
+                  width={"25px"}
+                  height={"25px"}
+                  style={{ borderRadius: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <FiUser />
+              )}
             </IconButton>
           </StyledToolbar>
         </Container>
@@ -112,12 +127,39 @@ export default function HomeLayout() {
             sx={{
               width: "100%",
               maxWidth: "200px",
-              paddingTop: "3rem",
+              paddingTop: "1.5rem",
               height: "100",
+              paddingLeft: "1rem",
               background: (theme) => theme.palette.background.default,
             }}
           >
             {sideMenuItems}
+            <div
+              style={{
+                display: "flex",
+                gap: ".5rem",
+                alignItems: "center",
+                fontSize: "calc(1rem + .7vw)",
+                marginBottom: "1.2em",
+                marginLeft: ".5em",
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/profile")}
+            >
+              {profileImg ? (
+                <img
+                  src={profileImg}
+                  width={"25px"}
+                  height={"25px"}
+                  style={{ objectFit: "cover", borderRadius: "100%" }}
+                />
+              ) : (
+                <FiUser />
+              )}
+              <p style={{ fontFamily: "Inter", fontSize: "calc(1rem + .3vw)" }}>
+                Profile
+              </p>
+            </div>
           </Box>
           <Container
             maxWidth="sm"
@@ -127,7 +169,9 @@ export default function HomeLayout() {
               padding: "0!important",
             }}
           >
-            <Outlet />
+            <div style={{ paddingRight: "1.5rem" }}>
+              <Outlet />
+            </div>
           </Container>
         </Box>
       )}
@@ -143,12 +187,44 @@ export default function HomeLayout() {
             sx={{
               width: "100%",
               maxWidth: "200px",
-              paddingTop: "3rem",
+              paddingTop: "1.5rem",
               height: "100",
+              paddingLeft: "2rem",
               background: (theme) => theme.palette.background.default,
             }}
           >
+            <img
+              src={Logo}
+              width={"40px"}
+              style={{ paddingLeft: ".8rem", marginBottom: "1.8rem" }}
+            />
             {sideMenuItems}
+            <div
+              style={{
+                display: "flex",
+                gap: ".5rem",
+                alignItems: "center",
+                fontSize: "calc(1rem + .7vw)",
+                marginBottom: "1.2em",
+                marginLeft: ".5em",
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/profile")}
+            >
+              {profileImg ? (
+                <img
+                  src={profileImg}
+                  width={"25px"}
+                  height={"25px"}
+                  style={{ objectFit: "cover", borderRadius: "100%" }}
+                />
+              ) : (
+                <FiUser />
+              )}
+              <p style={{ fontFamily: "Inter", fontSize: "calc(1rem + .3vw)" }}>
+                Profile
+              </p>
+            </div>
           </Box>
           <Container
             maxWidth="sm"

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import RenderPost from "./auth/user-profile/RenderPost";
 import apiClient from "../api/axiosInstance";
+import Post from "../components/Post";
 
 type Post = {
   _id: string;
@@ -51,7 +52,8 @@ export default function HomePage() {
   }
 
   return (
-    <div>
+    <div style={{paddingTop: "1.5rem"}}>
+      <Post token={token} userId={userId} />
       {posts.length > 0 ? (
         posts.map((post, idx) => (
           <RenderPost
